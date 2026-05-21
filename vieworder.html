@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>View Order - City Choice Bakers</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+   <link rel="stylesheet" href="back.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+/* ===== BASE ===== */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Poppins", sans-serif;
+}
+
+body{
+background:linear-gradient(135deg,#f1f5f9,#e2e8f0);
+padding:20px;
+color:#0f172a;
+}
+
+/* ===== TOAST ===== */
+.toast{
+position:fixed;
+top:-100px;
+left:50%;
+transform:translateX(-50%);
+background:white;
+padding:14px 18px;
+border-radius:12px;
+display:flex;
+gap:10px;
+align-items:center;
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
+transition:0.4s;
+z-index:999;
+}
+
+.toast.show{ top:20px; }
+
+/* ===== CARD ===== */
+.card{
+background:white;
+padding:18px;
+border-radius:18px;
+margin-bottom:15px;
+box-shadow:0 10px 30px rgba(0,0,0,0.08);
+transition:0.3s;
+}
+
+.card:hover{
+transform:rotateX(3deg) rotateY(3deg);
+}
+
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+font-size:14px;
+}
+
+/* ITEMS */
+.item{
+display:flex;
+gap:10px;
+padding:10px;
+background:#f8fafc;
+border-radius:10px;
+margin-bottom:10px;
+}
+
+.item img{
+width:55px;
+height:55px;
+border-radius:10px;
+object-fit:cover;
+}
+
+/* ADDRESS BOX */
+.address-box{
+background:#f1f5f9;
+padding:12px;
+border-radius:12px;
+margin-top:10px;
+font-size:14px;
+}
+
+/* BILL */
+.bill-row{
+display:flex;
+justify-content:space-between;
+margin:6px 0;
+}
+
+.total{
+font-size:18px;
+font-weight:800;
+margin-top:10px;
+}
+
+/* BUTTONS */
+.actions{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.btn{
+padding:10px 14px;
+border:none;
+border-radius:12px;
+font-weight:700;
+cursor:pointer;
+display:flex;
+gap:6px;
+align-items:center;
+}
+
+.accept{background:#22c55e;color:white;}
+.cancel{background:#ef4444;color:white;}
+.wait{background:#f59e0b;color:white;}
+.invoice{background:#3b82f6;color:white;opacity:0.5;}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="toast" id="toast">
+<i class="fa-solid fa-bell"></i>
+<span id="toastMsg">Message</span>
+</div>
+
+<div id="container">Loading...</div>
+
+<script>
+
+const sb = window.supabase.createClient(
+"https://ftuchilcswtnnldrugir.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0dWNoaWxjc3d0bm5sZHJ1Z2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjAyNDQsImV4cCI6MjA5NDczNjI0NH0.88SWE5lvsJD0Fw8x7h4pgAmq1WFRN1qMvmXHCXeDqsU"
+);
+
+const orderId = new URLSearchParams(window.location.search).get("id");
+function toast(msg, icon="fa-check"){
+document.getElementById("toastMsg").innerText = msg;
+const t = document.getElementById("toast");
+t.querySelector("i").className = "fa-solid " + icon;
+t.classList.add("show");
+setTimeout(()=>t.classList.remove("show"),3000);
+}
+
+async function loadOrder(){
+const { data, error } = await sb
+.from("orders")
+.select("*")
+.eq("order_id", orderId)
+.single();
+
+if(error || !data){
+document.getElementById("container").innerHTML = "Order not found";
+return;
+}
+
+const o = data;
+
+/* SAFE ITEMS */
+let items = [];
+try{
+items = typeof o.items === "string" ? JSON.parse(o.items) : (o.items || []);
+}catch{
+items = [];
+}
+
+/* HTML */
+document.getElementById("container").innerHTML = `
+
+<div class="card">
+<h2><i class="fa fa-receipt"></i> Order Details</h2>
+
+<div class="grid">
+<p><b>Order ID:</b> ${o.order_id || "-"}</p>
+<p><b>Package:</b> ${o.package_code || "-"}</p>
+<p><b>Date:</b> ${o.created_at ? new Date(o.created_at).toLocaleString() : "-"}</p>
+
+<p><b>Name:</b> ${o.customer_name || "-"}</p>
+<p><b>Phone:</b> ${o.phone || "-"}</p>
+<p><b>Email:</b> ${o.email || "-"}</p>
+
+<p><b>Payment:</b> ${o.payment_method || "-"}</p>
+<p><b>Status:</b> ${o.status || "-"}</p>
+</div>
+</div>
+
+<div class="card">
+<h3>Items</h3>
+
+${items.map(i=>`
+<div class="item">
+<img src="${i.image || ''}">
+<div>
+<b>${i.title || "-"}</b><br>
+<small>${i.description || ""}</small><br>
+Qty: ${i.qty || 0} | ₹${i.price || 0}
+</div>
+</div>
+`).join("")}
+</div>
+
+<div class="card">
+<h3>Bill Summary</h3>
+
+<div class="bill-row"><span>Subtotal</span><span>₹${o.subtotal || 0}</span></div>
+<div class="bill-row"><span>Tax</span><span>₹${o.tax || 0}</span></div>
+<div class="bill-row"><span>Delivery</span><span>₹${o.delivery_charge || 0}</span></div>
+<div class="bill-row"><span>Platform</span><span>₹${o.platform_charge || 0}</span></div>
+
+<div class="total">Grand Total: ₹${o.grand_total || 0}</div>
+</div>
+
+<div class="card">
+<h3>Saved Address</h3>
+
+<div class="address-box">
+
+<b>Receiver:</b> ${o.customer_name || "-"}<br>
+
+<b>Phone:</b> ${o.phone || "-"}<br>
+
+<b>State:</b> ${o.state || "-"}<br>
+
+<b>District:</b> ${o.district || "-"}<br>
+
+<b>Address 1:</b> ${o.address1 || "-"}<br>
+
+<b>Address 2:</b> ${o.address2 || "-"}<br>
+
+<b>Pincode:</b> ${o.pincode || "-"}<br>
+
+<b>Type:</b> ${o.address_type || "Home"}<br>
+
+</div>
+</div>
+
+<div class="card actions">
+
+<button class="btn accept" onclick="update('Accepted')">
+<i class="fa fa-check"></i> Accept
+</button>
+
+<button class="btn wait" onclick="update('Waiting')">
+<i class="fa fa-clock"></i> Waiting
+</button>
+
+<button class="btn cancel" onclick="update('Cancelled')">
+<i class="fa fa-xmark"></i> Cancel
+</button>
+
+<button class="btn invoice" disabled>
+<i class="fa fa-file"></i> Invoice
+</button>
+
+</div>
+
+`;
+
+}
+loadOrder();
+</script>
+<script>
+
+async function update(status){
+alert("ORDER ID = " + orderId);
+alert("Updating status to: " + status);
+
+const { data, error } = await sb
+.from("orders")
+.update({
+status: status
+})
+.eq("order_id", orderId)
+.select();
+
+console.log("DATA:", data);
+console.log("ERROR:", error);
+
+if(error){
+
+alert(
+"Supabase Error:\n\n" +
+JSON.stringify(error, null, 2)
+);
+
+toast("Update Failed", "fa-xmark");
+
+return;
+
+}
+
+if(!data || data.length === 0){
+
+alert(
+"No rows updated!\n\n" +
+"Possible reasons:\n" +
+"1. order_id not matching\n" +
+"2. RLS policy blocking update\n" +
+"3. Wrong table column"
+);
+
+return;
+
+}
+
+alert(
+"SUCCESS!\n\n" +
+"Status Updated To: " + status
+);
+
+toast("Status Updated: " + status);
+
+loadOrder();
+
+}
+
+</script>
+<script src="back.js"></script>
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!-- addproduct.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Add Product</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+   <link rel="stylesheet" href="back.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Poppins,sans-serif;
+}
+
+body{
+background:#f1f5f9;
+padding:20px;
+}
+
+.form-box{
+max-width:500px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+.title{
+font-size:24px;
+font-weight:700;
+margin-bottom:20px;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.input-box{
+margin-bottom:15px;
+}
+
+.input-box label{
+display:block;
+margin-bottom:8px;
+font-weight:600;
+}
+
+.input-box input,
+.input-box textarea,
+.input-box select{
+width:100%;
+padding:12px;
+border-radius:12px;
+border:1px solid #cbd5e1;
+outline:none;
+font-size:15px;
+}
+
+textarea{
+resize:none;
+height:100px;
+}
+
+.preview{
+width:100%;
+height:220px;
+border-radius:15px;
+object-fit:cover;
+margin-top:10px;
+display:none;
+border:2px dashed #cbd5e1;
+}
+
+.check{
+display:flex;
+align-items:center;
+gap:10px;
+margin-top:10px;
+}
+
+.btn{
+width:100%;
+padding:14px;
+border:none;
+border-radius:14px;
+background:#22c55e;
+color:white;
+font-size:16px;
+font-weight:700;
+cursor:pointer;
+margin-top:15px;
+}
+
+.btn:disabled{
+opacity:0.6;
+cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="form-box">
+
+<div class="title">
+<i class="fa-solid fa-plus"></i>
+Add Product
+</div>
+
+<div class="input-box">
+<label>Product Title</label>
+
+<input type="text"
+id="title"
+placeholder="Enter product title">
+</div>
+
+<div class="input-box">
+<label>Description</label>
+
+<textarea id="description"
+placeholder="Enter product description"></textarea>
+</div>
+
+<div class="input-box">
+<label>Price</label>
+
+<input type="number"
+id="price"
+placeholder="Enter price">
+</div>
+
+<div class="input-box">
+<label>Category</label>
+
+<select id="category">
+
+<option value="">Select Category</option>
+
+<option>Biryani</option>
+<option>Bread</option>
+<option>Cake</option>
+<option>Rice</option>
+<option>Pastry</option>
+<option>Pizza</option>
+<option>Snacks</option>
+<option>Yum</option>
+<option>Momos</option>
+<option>Breakfast</option>
+<option>Lunch</option>
+<option>Burgur</option>
+
+</select>
+</div>
+
+<div class="input-box">
+
+<label>Select Image</label>
+
+<input type="file"
+id="imageFile"
+accept="image/*">
+
+<img id="preview"
+class="preview">
+
+</div>
+
+<div class="check">
+
+<input type="checkbox"
+id="popular">
+
+<label for="popular">
+Popular Product
+</label>
+
+</div>
+
+<button class="btn"
+id="uploadBtn"
+onclick="uploadProduct()">
+
+<i class="fa-solid fa-upload"></i>
+Upload Product
+
+</button>
+
+</div>
+
+<script>
+
+// ================= SUPABASE =================
+
+const SUPABASE_URL =
+"https://ftuchilcswtnnldrugir.supabase.co";
+
+const SUPABASE_ANON_KEY =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0dWNoaWxjc3d0bm5sZHJ1Z2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjAyNDQsImV4cCI6MjA5NDczNjI0NH0.88SWE5lvsJD0Fw8x7h4pgAmq1WFRN1qMvmXHCXeDqsU";
+
+const sb =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_ANON_KEY
+);
+
+// ================= IMAGE PREVIEW =================
+
+const imageInput =
+document.getElementById("imageFile");
+
+const preview =
+document.getElementById("preview");
+
+imageInput.addEventListener("change", ()=>{
+
+const file = imageInput.files[0];
+
+if(!file) return;
+
+preview.src = URL.createObjectURL(file);
+
+preview.style.display = "block";
+
+});
+
+// ================= UPLOAD =================
+
+async function uploadProduct(){
+
+const btn =
+document.getElementById("uploadBtn");
+
+btn.disabled = true;
+btn.innerHTML =
+"Uploading...";
+
+// ================= GET VALUES =================
+
+const title =
+document.getElementById("title")
+.value.trim();
+
+const description =
+document.getElementById("description")
+.value.trim();
+
+const price =
+document.getElementById("price")
+.value;
+
+const category =
+document.getElementById("category")
+.value;
+
+const popular =
+document.getElementById("popular")
+.checked;
+
+const file =
+imageInput.files[0];
+
+// ================= VALIDATION =================
+
+if(!title ||
+!description ||
+!price ||
+!category ||
+!file){
+
+alert(
+"Please fill all fields"
+);
+
+btn.disabled = false;
+
+btn.innerHTML =
+`<i class="fa-solid fa-upload"></i>
+Upload Product`;
+
+return;
+
+}
+
+// ================= FILE NAME =================
+
+const fileName =
+Date.now() + "_" + file.name;
+
+// ================= UPLOAD IMAGE =================
+
+alert("Uploading image...");
+
+const { data:imageData,
+error:imageError } =
+await sb.storage
+.from("products")
+.upload(fileName, file);
+
+if(imageError){
+
+alert(
+"Image Upload Error:\n\n" +
+imageError.message
+);
+
+btn.disabled = false;
+
+btn.innerHTML =
+`<i class="fa-solid fa-upload"></i>
+Upload Product`;
+
+return;
+
+}
+
+// ================= GET IMAGE URL =================
+
+const imageUrl =
+`${SUPABASE_URL}/storage/v1/object/public/products/${fileName}`;
+
+alert(
+"Image Uploaded Successfully"
+);
+
+// ================= INSERT PRODUCT =================
+
+alert("Saving product...");
+
+const { data, error } =
+await sb
+.from("products")
+.insert([{
+
+title:title,
+
+description:description,
+
+price:parseInt(price),
+
+image:imageUrl,
+
+category:category,
+
+popular:popular
+
+}])
+.select();
+
+console.log(data);
+console.log(error);
+
+// ================= ERROR =================
+
+if(error){
+
+alert(
+"Database Error:\n\n" +
+JSON.stringify(error, null, 2)
+);
+
+btn.disabled = false;
+
+btn.innerHTML =
+`<i class="fa-solid fa-upload"></i>
+Upload Product`;
+
+return;
+
+}
+
+// ================= SUCCESS =================
+
+alert(
+"SUCCESS!\n\n" +
+"Product Added Successfully"
+);
+
+// ================= RESET =================
+
+document.getElementById("title")
+.value = "";
+
+document.getElementById("description")
+.value = "";
+
+document.getElementById("price")
+.value = "";
+
+document.getElementById("category")
+.value = "";
+
+document.getElementById("popular")
+.checked = false;
+
+imageInput.value = "";
+
+preview.style.display = "none";
+
+btn.disabled = false;
+
+btn.innerHTML =
+`<i class="fa-solid fa-upload"></i>
+Upload Product`;
+
+}
+
+</script>
+<script src="back.js"></script>
+</body>
+</html>

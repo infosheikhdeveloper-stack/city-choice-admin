@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Orders - Admin Panel</title>
+
+<link rel="stylesheet" href="orders.css">
+   <link rel="stylesheet" href="back.css">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
+
+<body>
+
+<header class="topbar">
+<div class="logo">
+<i class="fa-solid fa-box"></i>
+Orders Panel
+</div>
+</header>
+
+<div class="container" id="ordersContainer">
+Loading orders...
+</div>
+
+<script>
+const SUPABASE_URL = "https://ftuchilcswtnnldrugir.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0dWNoaWxjc3d0bm5sZHJ1Z2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjAyNDQsImV4cCI6MjA5NDczNjI0NH0.88SWE5lvsJD0Fw8x7h4pgAmq1WFRN1qMvmXHCXeDqsU";
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function loadOrders() {
+
+const container = document.getElementById("ordersContainer");
+container.innerHTML = "Loading orders...";
+
+try {
+
+const { data, error } = await sb
+.from("orders")
+.select("*")
+.order("id", { ascending: false });
+
+if (error) {
+container.innerHTML = `<div style="color:red;">${error.message}</div>`;
+return;
+}
+
+let html = "";
+
+data.forEach(order => {
+
+let items = [];
+
+if (order.items) {
+if (typeof order.items === "string") {
+try { items = JSON.parse(order.items); } catch { items = []; }
+} else if (Array.isArray(order.items)) {
+items = order.items;
+}
+}
+
+const orderId = order.order_id;
+
+html += `
+<div class="card">
+
+<div class="top">
+<div class="user">
+<i class="fa-solid fa-user"></i>
+<div>
+<h3>${order.customer_name || "No Name"}</h3>
+<p>${order.email || "No Email"}</p>
+<p>${order.phone || "No Phone"}</p>
+<p>${order.address1 || "No Address"}</p>
+</div>
+</div>
+
+<div class="status">
+
+<span class="
+${order.status === 'Accepted' ? 'green' : ''}
+${order.status === 'Cancelled' ? 'red' : ''}
+${order.status === 'Waiting' ? 'orange' : ''}
+">
+
+${order.status || "Pending"}
+
+</span>
+
+</div>
+</div>
+
+<div class="items">
+${items.map(i => `
+<div class="item">
+<i class="fa-solid fa-bag-shopping"></i>
+<span>${i.title} × ${i.qty}</span>
+<b>₹${i.price * i.qty}</b>
+</div>
+`).join("")}
+</div>
+
+<div class="bottom">
+
+<div class="total">
+Grand Total: ₹${order.grand_total || 0}
+</div>
+
+<button class="view-btn" data-id="${orderId}">
+<i class="fa-solid fa-eye"></i> View Order
+</button>
+
+</div>
+
+</div>
+`;
+
+});
+
+container.innerHTML = html;
+
+} catch (err) {
+container.innerHTML = `<div style="color:red;">${err.message}</div>`;
+}
+}
+
+// ✅ WORKING CLICK (EVENT DELEGATION)
+document.addEventListener("click", function(e){
+
+const btn = e.target.closest(".view-btn");
+if(!btn) return;
+
+const id = btn.dataset.id;
+
+alert("Opening Order ID: " + id);
+
+if(!id){
+alert("Order ID missing!");
+return;
+}
+
+window.location.href = "vieworder.html?id=" + id;
+});
+
+loadOrders();
+
+</script>
+<script src="back.js"></script>
+</body>
+</html>

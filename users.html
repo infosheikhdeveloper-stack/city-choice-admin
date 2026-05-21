@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Users - Admin Panel</title>
+
+<link rel="stylesheet" href="users.css">
+   <link rel="stylesheet" href="back.css">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="topbar">
+
+<div class="logo">
+<i class="fa-solid fa-users"></i>
+Users Panel
+</div>
+
+</header>
+
+<!-- USERS CONTAINER -->
+<div class="container" id="usersContainer">
+Loading users...
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+<div class="modal-content">
+
+<span class="close" onclick="closeModal()">&times;</span>
+
+<h2>User Details</h2>
+
+<p><b>Name:</b> <span id="mName"></span></p>
+<p><b>Email:</b> <span id="mEmail"></span></p>
+<p><b>Phone:</b> <span id="mPhone"></span></p>
+<p><b>Location:</b> <span id="mLocation"></span></p>
+<p><b>Pincode:</b> <span id="mPincode"></span></p>
+
+</div>
+</div>
+
+<script>
+
+// ================= SUPABASE =================
+const SUPABASE_URL = "https://ftuchilcswtnnldrugir.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0dWNoaWxjc3d0bm5sZHJ1Z2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjAyNDQsImV4cCI6MjA5NDczNjI0NH0.88SWE5lvsJD0Fw8x7h4pgAmq1WFRN1qMvmXHCXeDqsU";
+
+const sb = window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_ANON_KEY
+);
+
+// LOAD USERS
+async function loadUsers(){
+
+const { data, error } = await sb
+.from("users")
+.select("*");
+
+if(error){
+document.getElementById("usersContainer").innerHTML =
+"Error loading users";
+return;
+}
+
+let html = "";
+
+data.forEach(user => {
+
+html += `
+<div class="card">
+
+<div class="icon">
+<i class="fa-solid fa-user"></i>
+</div>
+
+<div class="info">
+<h3>${user.name || "No Name"}</h3>
+<p>${user.email || ""}</p>
+<p>${user.phone || ""}</p>
+</div>
+
+<button onclick='viewUser(${JSON.stringify(user)})'>
+View Details
+</button>
+
+</div>
+`;
+
+});
+
+document.getElementById("usersContainer").innerHTML = html;
+
+}
+
+loadUsers();
+
+// OPEN MODAL
+function viewUser(user){
+
+document.getElementById("mName").innerText = user.name || "";
+document.getElementById("mEmail").innerText = user.email || "";
+document.getElementById("mPhone").innerText = user.phone || "";
+document.getElementById("mLocation").innerText = user.location || "";
+document.getElementById("mPincode").innerText = user.pincode || "";
+
+document.getElementById("modal").style.display = "flex";
+}
+
+// CLOSE MODAL
+function closeModal(){
+document.getElementById("modal").style.display = "none";
+}
+
+</script>
+<script src="back.js"></script>
+</body>
+</html>

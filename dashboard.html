@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Dashboard - City Choice Bakers</title>
+
+<link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+</head>
+
+<body>
+
+<header>
+  
+<header class="topbar">
+<div class="logo">
+<img src="logo.png" class="logo-img">
+City Choice Bakers
+</div>
+
+<div class="admin-tag">
+Owner: Nisar Ahmad Sheikh
+</div>
+</header>
+
+<div class="container">
+
+<!-- USERS -->
+<a href="users.html" class="card">
+<div class="icon users"><i class="fa fa-users"></i></div>
+<div class="info">
+<h2 id="usersCount">0</h2>
+<p>Users</p>
+</div>
+</a>
+
+<!-- ORDERS -->
+<a href="orders.html" class="card">
+<div class="icon orders"><i class="fa fa-box"></i></div>
+<div class="info">
+<h2 id="ordersCount">0</h2>
+<p>Total Orders</p>
+</div>
+</a>
+
+<!-- ADD PRODUCTS -->
+<a href="addproducts.html" class="card">
+  <div class="icon products">
+    <i class="fa fa-plus"></i>
+  </div>
+
+  <div class="info">
+    <h2>+</h2>
+    <p>Add Product</p>
+  </div>
+</a>
+
+<!-- ALL PRODUCTS -->
+<a href="allproduct.html" class="card">
+  <div class="icon products">
+    <i class="fa fa-burger"></i>
+  </div>
+
+  <div class="info">
+    <h2 id="productsCount">0</h2>
+    <p>All Products</p>
+  </div>
+</a>
+
+
+
+<!-- PENDING -->
+<a href="data.html?type=Pending" class="card">
+<div class="icon pending"><i class="fa fa-clock"></i></div>
+<div class="info">
+<h2 id="pendingCount">0</h2>
+<p>Pending</p>
+</div>
+</a>
+
+<!-- ACCEPTED -->
+<a href="data.html?type=Accepted" class="card">
+<div class="icon accepted"><i class="fa fa-check-circle"></i></div>
+<div class="info">
+<h2 id="acceptedCount">0</h2>
+<p>Accepted Orders</p>
+</div>
+</a>
+
+<!-- WAITING -->
+<a href="data.html?type=Waiting" class="card">
+<div class="icon wait"><i class="fa fa-hourglass"></i></div>
+<div class="info">
+<h2 id="waitingCount">0</h2>
+<p>Waiting</p>
+</div>
+</a>
+
+<!-- CANCELLED -->
+<a href="data.html?type=Cancelled" class="card">
+<div class="icon cancel"><i class="fa fa-xmark"></i></div>
+<div class="info">
+<h2 id="cancelCount">0</h2>
+<p>Cancelled</p>
+</div>
+</a>
+
+<!-- EMPLOYEES -->
+<a href="comingsoon.html" class="card">
+<div class="icon emp"><i class="fa fa-user-tie"></i></div>
+<div class="info">
+<h2 id="empCount">0</h2>
+<p>Employees</p>
+</div>
+</a>
+
+<!-- SHOP -->
+<a href="comingsoon.html" class="card">
+<div class="icon shop"><i class="fa fa-store"></i></div>
+<div class="info">
+<h2>🏪</h2>
+<p>Shop</p>
+</div>
+</a>
+
+<!-- DAILY SALE -->
+<a href="comingsoon.html" class="card">
+<div class="icon sale"><i class="fa fa-chart-line"></i></div>
+<div class="info">
+<h2>📊</h2>
+<p>Daily Sale</p>
+</div>
+</a>
+
+<!-- SETTINGS -->
+<a href="comingsoon.html" class="card">
+<div class="icon set"><i class="fa fa-gear"></i></div>
+<div class="info">
+<h2>⚙️</h2>
+<p>Settings</p>
+</div>
+</a>
+
+</div>
+
+<!-- CHARTS -->
+<div class="charts">
+
+<div class="chart-box">
+  <canvas id="statusChart"></canvas>
+</div>
+
+<div class="chart-box circle">
+  <img src="logo.png">
+  <canvas id="orderChart"></canvas>
+</div>
+
+</div>
+
+<script>
+
+const sb = window.supabase.createClient(
+"https://ftuchilcswtnnldrugir.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0dWNoaWxjc3d0bm5sZHJ1Z2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjAyNDQsImV4cCI6MjA5NDczNjI0NH0.88SWE5lvsJD0Fw8x7h4pgAmq1WFRN1qMvmXHCXeDqsU"
+);
+
+async function loadProductsCount(){
+
+const { count, error } = await sb
+.from("products")
+.select("*", { count: "exact", head: true });
+
+if(error){
+console.log("Products Count Error:", error.message);
+document.getElementById("productsCount").innerText = "0";
+return;
+}
+
+document.getElementById("productsCount").innerText = count || 0;
+
+}
+
+loadProductsCount();
+
+
+// COUNTS
+async function loadData(){
+
+const { count: users } = await sb.from("users").select("*",{count:"exact", head:true});
+const { count: orders } = await sb.from("orders").select("*",{count:"exact", head:true});
+
+const { count: pending } = await sb.from("orders").select("*",{count:"exact", head:true}).eq("status","Pending");
+const { count: waiting } = await sb.from("orders").select("*",{count:"exact", head:true}).eq("status","Waiting");
+const { count: cancelled } = await sb.from("orders").select("*",{count:"exact", head:true}).eq("status","Cancelled");
+const { count: employees } = await sb.from("employees").select("*",{count:"exact", head:true});
+const { count: accepted } = await sb.from("orders").select("*",{count:"exact", head:true}).eq("status","Accepted");
+
+document.getElementById("acceptedCount").innerText = accepted || 0;
+document.getElementById("usersCount").innerText = users || 0;
+document.getElementById("ordersCount").innerText = orders || 0;
+document.getElementById("pendingCount").innerText = pending || 0;
+document.getElementById("waitingCount").innerText = waiting || 0;
+document.getElementById("cancelCount").innerText = cancelled || 0;
+document.getElementById("empCount").innerText = employees || 0;
+
+// CHART
+// STATUS CHART (SMALL DOUGHNUT)
+new Chart(document.getElementById("statusChart"), {
+type: 'doughnut',
+data: {
+labels: ['Pending','Waiting','Cancelled'],
+datasets: [{
+data: [pending, waiting, cancelled],
+backgroundColor: ['#f59e0b','#3b82f6','#ef4444']
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false
+}
+});
+
+
+// TOTAL ORDERS CIRCLE (SMALL CENTER LOGO STYLE)
+new Chart(document.getElementById("orderChart"), {
+type: 'doughnut',
+data: {
+labels: ['Orders'],
+datasets: [{
+data: [orders],
+backgroundColor: ['#22c55e']
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+cutout: "75%"
+}
+});
+
+
+}
+
+loadData();
+
+</script>
+
+</body>
+</html>

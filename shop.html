@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Shop Management - City Choice Bakers</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="supabase.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#f8f8f8;
+padding:120px 15px 30px;
+}
+
+/* HEADER */
+
+.top-header{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+
+background:linear-gradient(135deg,#ff2b2b,#111);
+color:#fff;
+
+padding:20px;
+
+border-radius:0 0 25px 25px;
+
+box-shadow:0 10px 25px rgba(0,0,0,.15);
+
+z-index:1000;
+}
+
+.logo-box{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.logo-box img{
+width:60px;
+height:60px;
+border-radius:50%;
+background:#fff;
+padding:4px;
+}
+
+.logo-box h2{
+font-size:22px;
+}
+
+.logo-box p{
+font-size:13px;
+opacity:.9;
+margin-top:2px;
+}
+
+/* TITLE */
+
+.page-title{
+text-align:center;
+margin-bottom:20px;
+font-size:25px;
+font-weight:700;
+color:#111;
+}
+
+/* SHOP CARD */
+
+.shop-card{
+background:#fff;
+padding:20px;
+border-radius:20px;
+margin-bottom:20px;
+
+box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.shop-head{
+display:flex;
+align-items:center;
+gap:12px;
+margin-bottom:15px;
+}
+
+.shop-icon{
+width:55px;
+height:55px;
+
+background:#fff0f0;
+color:#ff2b2b;
+
+border-radius:50%;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:24px;
+}
+
+.shop-name{
+font-size:19px;
+font-weight:700;
+color:#111;
+}
+
+.status{
+font-size:15px;
+margin-top:5px;
+font-weight:600;
+}
+
+.open{
+color:#16a34a;
+}
+
+.closed{
+color:#dc2626;
+}
+
+/* BUTTONS */
+
+.btn-row{
+display:flex;
+gap:10px;
+margin-top:15px;
+}
+
+.btn{
+flex:1;
+border:none;
+padding:12px;
+border-radius:12px;
+font-size:15px;
+font-weight:600;
+cursor:pointer;
+}
+
+.open-btn{
+background:#22c55e;
+color:#fff;
+}
+
+.close-btn{
+background:#ef4444;
+color:#fff;
+}
+
+.open-btn:hover,
+.close-btn:hover{
+opacity:.9;
+}
+
+/* FOOTER */
+
+.footer{
+text-align:center;
+margin-top:25px;
+font-size:13px;
+color:#666;
+}
+
+.loading{
+text-align:center;
+padding:30px;
+font-size:16px;
+color:#777;
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="top-header">
+
+<div class="logo-box">
+
+<img src="logo.png" alt="Logo">
+
+<div>
+<h2>City Choice Bakers</h2>
+<p>Shop Management Panel</p>
+</div>
+
+</div>
+
+</div>
+
+<h1 class="page-title">
+<i class="fa-solid fa-store"></i>
+ Manage Shops
+</h1>
+
+<div id="shopsBox">
+
+<div class="loading">
+<i class="fa-solid fa-spinner fa-spin"></i>
+ Loading Shops...
+</div>
+
+</div>
+
+<div class="footer">
+© 2026 City Choice Bakers Admin Panel
+</div>
+
+<script>
+
+async function loadShops(){
+
+  let { data, error } = await supabaseClient
+    .from("shops")
+    .select("*")
+    .order("id");
+
+  if(error){
+    console.log(error);
+    document.getElementById("shopsBox").innerHTML =
+    "<p style='text-align:center;color:red;'>Failed to load shops.</p>";
+    return;
+  }
+
+  let html = "";
+
+  data.forEach(shop => {
+
+    let isOpen = shop.status === "Open";
+
+    html += `
+
+    <div class="shop-card">
+
+      <div class="shop-head">
+
+        <div class="shop-icon">
+          <i class="fa-solid ${isOpen ? 'fa-store' : 'fa-store-slash'}"></i>
+        </div>
+
+        <div>
+
+          <div class="shop-name">
+            ${shop.shop_name}
+          </div>
+
+          <div class="status ${isOpen ? 'open' : 'closed'}">
+            ${isOpen ? '🟢 Open Now' : '🔴 Closed'}
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="btn-row">
+
+        <button
+        class="btn open-btn"
+        onclick="updateStatus(${shop.id},'Open')">
+          <i class="fa-solid fa-lock-open"></i>
+          Open
+        </button>
+
+        <button
+        class="btn close-btn"
+        onclick="updateStatus(${shop.id},'Closed')">
+          <i class="fa-solid fa-lock"></i>
+          Close
+        </button>
+
+      </div>
+
+    </div>
+
+    `;
+  });
+
+  document.getElementById("shopsBox").innerHTML = html;
+}
+
+async function updateStatus(id,status){
+
+  let { error } = await supabaseClient
+    .from("shops")
+    .update({
+      status: status
+    })
+    .eq("id", id);
+
+  if(error){
+    alert("Failed To Update Status");
+    console.log(error);
+    return;
+  }
+
+  loadShops();
+}
+
+loadShops();
+
+</script>
+
+</body>
+</html>

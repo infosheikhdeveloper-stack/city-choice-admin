@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Owner Dashboard - City Choice Bakers</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="back.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#f6f6f6;
+padding:20px;
+padding-bottom:60px;
+}
+
+/* OWNER MAIN HEADER */
+.header{
+background:linear-gradient(135deg,#ff2b2b,#111);
+color:#fff;
+padding:25px 20px;
+border-radius:20px;
+text-align:center;
+margin-bottom:25px;
+box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.header img.logo{
+width:75px;
+height:75px;
+border-radius:50%;
+background:#fff;
+padding:4px;
+margin-bottom:8px;
+border: 2px solid #ff2b2b;
+}
+
+.header h2{
+font-size:24px;
+letter-spacing: 0.5px;
+text-transform: uppercase;
+}
+
+.header .owner-tag {
+background: rgba(255, 255, 255, 0.2);
+display: inline-flex;
+align-items: center;
+gap: 8px;
+padding: 6px 18px;
+border-radius: 20px;
+font-size: 13px;
+margin-top: 10px;
+font-weight: 600;
+backdrop-filter: blur(5px);
+border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* BRANCH SECTIONS CONTAINER */
+.branch-card {
+background: #fff;
+border-radius: 20px;
+padding: 20px;
+margin-bottom: 25px;
+box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+border: 1px solid #eee;
+}
+
+.branch-identity {
+display: flex;
+align-items: center;
+gap: 15px;
+border-bottom: 1px solid #eee;
+padding-bottom: 15px;
+margin-bottom: 15px;
+position: relative;
+}
+
+.branch-logo {
+width: 60px;
+height: 60px;
+border-radius: 50%;
+object-fit: cover;
+border: 2px solid #333;
+background: #fff;
+}
+
+.branch-info h3 {
+font-size: 18px;
+color: #111;
+line-height: 1.2;
+}
+
+.branch-info p {
+font-size: 12px;
+color: #666;
+margin-top: 3px;
+display: flex;
+align-items: center;
+gap: 4px;
+}
+
+/* DYNAMIC STATUS BADGES */
+.status-badge {
+position: absolute;
+top: 0;
+right: 0;
+padding: 6px 12px;
+border-radius: 20px;
+font-size: 11px;
+font-weight: 700;
+text-transform: uppercase;
+display: flex;
+align-items: center;
+gap: 5px;
+}
+.status-open { background: #dcfce7; color: #16a34a; }
+.status-closed { background: #ffebeb; color: #dc2626; }
+
+/* METRICS GRID DESIGN */
+.metrics-grid {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 10px;
+margin-bottom: 15px;
+}
+
+.metric-box {
+padding: 12px;
+border-radius: 12px;
+text-align: center;
+background: #f9f9f9;
+border-left: 4px solid #ddd;
+}
+.m-total { border-left-color: #ff2b2b; background: #fff5f5; grid-column: span 2;}
+.m-cash { border-left-color: #16a34a; }
+.m-online { border-left-color: #0284c7; }
+.m-mpay { border-left-color: #7e22ce; }
+
+.metric-box span {
+font-size: 11px;
+color: #666;
+font-weight: 600;
+text-transform: uppercase;
+display: block;
+}
+
+.metric-box h4 {
+font-size: 18px;
+color: #222;
+margin-top: 2px;
+}
+
+/* ACTION CONTROLS BUTTONS */
+.control-actions {
+display: flex;
+gap: 10px;
+margin-top: 15px;
+}
+
+.c-btn {
+flex: 1;
+padding: 12px;
+border: none;
+border-radius: 12px;
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+transition: 0.2s;
+text-decoration: none;
+}
+
+.btn-salesmen { background: #333; color: #fff; }
+.btn-details { background: #ff2b2b; color: #fff; }
+.c-btn:hover { opacity: 0.9; }
+
+/* TOGGLE CONTAINER SECTIONS */
+.toggle-section {
+display: none;
+margin-top: 15px;
+padding-top: 15px;
+border-top: 1px dashed #ddd;
+animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* SALESMAN LIST CARDS */
+.salesman-row-card {
+display: flex;
+align-items: center;
+gap: 12px;
+background: #f9f9f9;
+padding: 10px;
+border-radius: 12px;
+margin-bottom: 8px;
+border: 1px solid #eee;
+}
+
+.salesman-row-card img {
+width: 45px;
+height: 45px;
+border-radius: 50%;
+object-fit: cover;
+background: #fff;
+}
+
+.salesman-details { flex: 1; }
+.salesman-details h5 { font-size: 14px; color: #222; }
+.salesman-details p { font-size: 11px; color: #666; }
+
+.salesman-revenue {
+text-align: right;
+font-size: 13px;
+font-weight: 700;
+color: #16a34a;
+}
+
+/* DETAILS SHEET STYLING & DOWNLOAD ACTION */
+.details-header-bar {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 10px;
+}
+
+.details-header-bar h4 { font-size: 14px; color: #333; }
+
+.download-btn {
+background: #16a34a;
+color: #fff;
+border: none;
+padding: 6px 12px;
+border-radius: 8px;
+font-size: 11px;
+font-weight: 600;
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+gap: 4px;
+}
+
+.table-wrapper {
+max-height: 250px;
+overflow-y: auto;
+border: 1px solid #eee;
+border-radius: 8px;
+}
+
+.data-table {
+width: 100%;
+border-collapse: collapse;
+font-size: 12px;
+text-align: left;
+}
+
+.data-table th {
+background: #eee;
+color: #333;
+padding: 10px;
+font-weight: 600;
+position: sticky;
+top: 0;
+}
+
+.data-table td {
+padding: 10px;
+border-bottom: 1px solid #eee;
+background: #fff;
+}
+
+/* --- HIDDEN PDF COMPILER INLINE CANVAS BLOCK --- */
+#pdf-render-canvas {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    width: 790px;
+    background: #fff;
+    padding: 30px;
+}
+.pdf-header {
+    background: linear-gradient(135deg, #ff2b2b, #111);
+    color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 25px;
+}
+.pdf-header img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #fff;
+    padding: 2px;
+    margin-bottom: 5px;
+}
+.pdf-meta-box {
+    display: flex;
+    justify-content: space-between;
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #333;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+}
+.pdf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-bottom: 20px;
+}
+.pdf-table th {
+    background: #222;
+    color: #fff;
+    padding: 10px;
+    font-weight: 600;
+}
+.pdf-table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+.pdf-summary-block {
+    margin-left: auto;
+    width: 300px;
+    background: #fdf5f5;
+    padding: 15px;
+    border-radius: 8px;
+    border-right: 4px solid #ff2b2b;
+}
+.pdf-summary-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #333;
+}
+.pdf-grand-total {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ff2b2b;
+    border-top: 1px solid #ddd;
+    padding-top: 6px;
+    margin-top: 6px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <img src="logo.png" class="logo" alt="City Choice Main Logo">
+    <h2>CITY CHOICE BAKERS</h2>
+    <div class="owner-tag">
+        <i class="fa-solid fa-user-gear"></i> Owner Control Room Dashboard
+    </div>
+</div>
+
+<div class="branch-card" id="branch-magam">
+    <div class="branch-identity">
+        <img src="logo.png" class="branch-logo" alt="Magam Logo">
+        <div class="branch-info">
+            <h3>City Choice Bakers</h3>
+            <p><i class="fa-solid fa-location-dot"></i> Gulmarg road magam</p>
+        </div>
+        <div class="status-badge" id="status-magam">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> Checking
+        </div>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-box m-total">
+            <span>Total Sales Accumulated</span>
+            <h4 id="magam-total">₹0</h4>
+        </div>
+        <div class="metric-box m-cash">
+            <span>Total Cash</span>
+            <h4 id="magam-cash">₹0</h4>
+        </div>
+        <div class="metric-box m-online">
+            <span>Total Online</span>
+            <h4 id="magam-online">₹0</h4>
+        </div>
+        <div class="metric-box m-mpay">
+            <span>Total Mpay</span>
+            <h4 id="magam-mpay">₹0</h4>
+        </div>
+    </div>
+
+    <div class="control-actions">
+        <button class="c-btn btn-salesmen" onclick="toggleView('magam', 'salesmen')">
+            <i class="fa-solid fa-users"></i> View Salesmen
+        </button>
+        <button class="c-btn btn-details" onclick="toggleView('magam', 'details')">
+            <i class="fa-solid fa-chart-pie"></i> View Details
+        </button>
+    </div>
+
+    <div id="magam-salesmen-sec" class="toggle-section"></div>
+    <div id="magam-details-sec" class="toggle-section"></div>
+</div>
+
+
+<div class="branch-card" id="branch-kunzer">
+    <div class="branch-identity">
+        <img src="logo2.png" class="branch-logo" alt="Kunzer Logo">
+        <div class="branch-info">
+            <h3>City Choice Bakers</h3>
+            <p><i class="fa-solid fa-location-dot"></i> Main markit kunzer</p>
+        </div>
+        <div class="status-badge" id="status-kunzer">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> Checking
+        </div>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-box m-total">
+            <span>Total Sales Accumulated</span>
+            <h4 id="kunzer-total">₹0</h4>
+        </div>
+        <div class="metric-box m-cash">
+            <span>Total Cash</span>
+            <h4 id="kunzer-cash">₹0</h4>
+        </div>
+        <div class="metric-box m-online">
+            <span>Total Online</span>
+            <h4 id="kunzer-online">₹0</h4>
+        </div>
+        <div class="metric-box m-mpay">
+            <span>Total Mpay</span>
+            <h4 id="kunzer-mpay">₹0</h4>
+        </div>
+    </div>
+
+    <div class="control-actions">
+        <button class="c-btn btn-salesmen" onclick="toggleView('kunzer', 'salesmen')">
+            <i class="fa-solid fa-users"></i> View Salesmen
+        </button>
+        <button class="c-btn btn-details" onclick="toggleView('kunzer', 'details')">
+            <i class="fa-solid fa-chart-pie"></i> View Details
+        </button>
+    </div>
+
+    <div id="kunzer-salesmen-sec" class="toggle-section"></div>
+    <div id="kunzer-details-sec" class="toggle-section"></div>
+</div>
+
+<div id="pdf-render-canvas"></div>
+
+<script>
+// --- DIRECT INLINE SUPABASE CREDENTIALS SETUP ---
+const SUPABASE_URL = "https://ftuchilcswtnnldrugir.supabase.co"; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0dWNoaWxjc3d0bm5sZHJ1Z2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjAyNDQsImV4cCI6MjA5NDczNjI0NH0.88SWE5lvsJD0Fw8x7h4pgAmq1WFRN1qMvmXHCXeDqsU";           
+
+let db;
+
+try {
+    if (typeof supabase !== 'undefined') {
+        db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } else {
+        alert("Database connection instance framework script missing!");
+    }
+} catch(err) {
+    console.error("Database connection configuration failed:", err.message);
+}
+
+let salesDataCache = { magam: [], kunzer: [] };
+
+// 1. OPERATION METHOD: SYNC SHOP DYNAMIC RUNTIME STATUSES
+async function syncShopStatuses() {
+    try {
+        if(!db) return;
+        const { data, error } = await db.from("shops").select("shop_name, status");
+        if (error) throw error;
+
+        data.forEach(shop => {
+            let badgeEl;
+            let normalizedName = shop.shop_name.toLowerCase();
+            
+            if(normalizedName.includes("magam")) {
+                badgeEl = document.getElementById("status-magam");
+            } else if(normalizedName.includes("kunzer")) {
+                badgeEl = document.getElementById("status-kunzer");
+            }
+
+            if(badgeEl) {
+                if(shop.status && shop.status.toLowerCase() === "open") {
+                    badgeEl.className = "status-badge status-open";
+                    badgeEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> Open`;
+                } else {
+                    badgeEl.className = "status-badge status-closed";
+                    badgeEl.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Closed`;
+                }
+            }
+        });
+    } catch(e) {
+        console.error("Failed syncing table statuses:", e.message);
+    }
+}
+
+// 2. OPERATION METHOD: AGGREGATE CORE BUSINESS FINANCIAL MATRICES
+async function syncBranchFinancialMetrics() {
+    try {
+        if(!db) return;
+        const { data: sales, error } = await db.from("shop_sale").select("*");
+        if (error) throw error;
+
+        salesDataCache.magam = [];
+        salesDataCache.kunzer = [];
+
+        let counters = {
+            magam: { total: 0, cash: 0, online: 0, mpay: 0 },
+            kunzer: { total: 0, cash: 0, online: 0, mpay: 0 }
+        };
+
+        sales.forEach(row => {
+            let sName = (row.shop_name || "").toLowerCase();
+            let branchKey = "";
+
+            if (sName.includes("magam")) branchKey = "magam";
+            else if (sName.includes("kunzer")) branchKey = "kunzer";
+
+            if (branchKey) {
+                salesDataCache[branchKey].push(row);
+                let amt = Number(row.paid_amount) || 0;
+                counters[branchKey].total += amt;
+
+                let mode = (row.payment_method || "").toLowerCase();
+                if (mode === "cash") counters[branchKey].cash += amt;
+                else if (mode === "online") counters[branchKey].online += amt;
+                else if (mode === "mpay") counters[branchKey].mpay += amt;
+            }
+        });
+
+        ['magam', 'kunzer'].forEach(k => {
+            document.getElementById(`${k}-total`).innerText = "₹" + counters[k].total;
+            document.getElementById(`${k}-cash`).innerText = "₹" + counters[k].cash;
+            document.getElementById(`${k}-online`).innerText = "₹" + counters[k].online;
+            document.getElementById(`${k}-mpay`).innerText = "₹" + counters[k].mpay;
+        });
+
+    } catch (e) {
+        console.error("Financial matrix calculation crashed:", e.message);
+    }
+}
+
+// 3. SECTIONS COLLAPSE/EXPAND DIAGRAM
+function toggleView(branch, type) {
+    let salesSec = document.getElementById(`${branch}-salesmen-sec`);
+    let detailsSec = document.getElementById(`${branch}-details-sec`);
+    let targetedSec = (type === 'salesmen') ? salesSec : detailsSec;
+    let oppositeSec = (type === 'salesmen') ? detailsSec : salesSec;
+
+    oppositeSec.style.display = "none";
+
+    if (targetedSec.style.display === "block") {
+        targetedSec.style.display = "none";
+    } else {
+        targetedSec.style.display = "block";
+        if (type === 'salesmen') renderSalesmenSection(branch);
+        else renderDetailsSection(branch);
+    }
+}
+
+// 4. VIEW RENDER ROUTINE: SALESMAN MAP OVERVIEW
+function renderSalesmenSection(branch) {
+    let container = document.getElementById(`${branch}-salesmen-sec`);
+    let branchRows = salesDataCache[branch];
+
+    let salesmenMap = {};
+    branchRows.forEach(row => {
+        let email = row.salesman_email || "unknown@citychoice.com";
+        if (!salesmenMap[email]) {
+            salesmenMap[email] = {
+                name: row.salesman_name || "Staff Professional",
+                phone: row.salesman_phone || "No Record Found",
+                photo: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+                totalCollected: 0
+            };
+        }
+        salesmenMap[email].totalCollected += (Number(row.paid_amount) || 0);
+    });
+
+    let html = `<h4><i class="fa-solid fa-users-viewfinder"></i> Active Field Personnel</h4><div style="margin-top:10px;">`;
+    let keys = Object.keys(salesmenMap);
+
+    if(keys.length === 0) {
+        html += `<p style="font-size:12px; color:#999; text-align:center;">No salesman logs captured here today.</p>`;
+    } else {
+        keys.forEach(email => {
+            let sm = salesmenMap[email];
+            html += `
+                <div class="salesman-row-card">
+                    <img src="${sm.photo}" alt="User Profile">
+                    <div class="salesman-details">
+                        <h5>${sm.name}</h5>
+                        <p><i class="fa-solid fa-phone"></i> ${sm.phone}</p>
+                    </div>
+                    <div class="salesman-revenue">₹${sm.totalCollected}</div>
+                </div>`;
+        });
+    }
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+// 5. VIEW RENDER ROUTINE: DETAILED RECORDS LOGS WITH EXPORT LOGIC
+function renderDetailsSection(branch) {
+    let container = document.getElementById(`${branch}-details-sec`);
+    let branchRows = salesDataCache[branch];
+
+    let html = `
+        <div class="details-header-bar">
+            <h4><i class="fa-solid fa-folder-closed"></i> Operational Spreadsheet</h4>
+            <button class="download-btn" onclick="generatePDFStatement('${branch}')">
+                <i class="fa-solid fa-file-pdf"></i> Download PDF Statement
+            </button>
+        </div>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Client / Shop</th>
+                        <th>Total</th>
+                        <th>Paid</th>
+                        <th>Balance</th>
+                        <th>Mode</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+    if(branchRows.length === 0) {
+        html += `<tr><td colspan="5" style="text-align:center; color:#999; padding:15px;">No logged data rows available.</td></tr>`;
+    } else {
+        branchRows.forEach(row => {
+            html += `
+                <tr>
+                    <td><b>${row.shop_name}</b><br><span style="font-size:10px; color:#666;">${row.customer_name || 'Walk-in'}</span></td>
+                    <td>₹${row.total_amount}</td>
+                    <td>₹${row.paid_amount}</td>
+                    <td style="color:${row.remaining_amount > 0 ? '#dc2626':'#16a34a'}; font-weight:600;">₹${row.remaining_amount}</td>
+                    <td>${row.payment_method}</td>
+                </tr>`;
+        });
+    }
+
+    html += `</tbody></table></div>`;
+    container.innerHTML = html;
+}
+
+// 6. NEW FEATURE: ADVANCE PDF COMPILER STATEMENT GENERATOR ENGINE
+function generatePDFStatement(branch) {
+    let rowsData = salesDataCache[branch];
+    if(rowsData.length === 0) return alert("No ledger data rows found to compile PDF document.");
+
+    let shopTitle = branch.toUpperCase() === "MAGAM" ? "Gulmarg Road Magam" : "Main Market Kunzer";
+    let logoSrc = branch.toUpperCase() === "MAGAM" ? "logo.png" : "logo2.png";
+    let currentDate = new Date().toLocaleString('en-IN', { timeZone: 'IST' });
+
+    // Subtotals logic counters
+    let subtotalCash = 0;
+    let subtotalOnline = 0;
+    let subtotalMpay = 0;
+    let grandTotalPaid = 0;
+
+    let tableRowsHtml = "";
+    rowsData.forEach(row => {
+        let total = Number(row.total_amount) || 0;
+        let paid = Number(row.paid_amount) || 0;
+        let bal = Number(row.remaining_amount) || 0;
+        let method = row.payment_method || "Cash";
+
+        grandTotalPaid += paid;
+        if(method === "Cash") subtotalCash += paid;
+        else if(method === "Online") subtotalOnline += paid;
+        else if(method === "Mpay") subtotalMpay += paid;
+
+        tableRowsHtml += `
+            <tr>
+                <td><b>${row.shop_name}</b><br><small style="color:#555;">Client: ${row.customer_name || 'N/A'}</small></td>
+                <td>${row.salesman_name || 'N/A'}</td>
+                <td>₹${total.toFixed(2)}</td>
+                <td style="color:#16a34a; font-weight:600;">₹${paid.toFixed(2)}</td>
+                <td style="color:${bal > 0 ? '#dc2626' : '#16a34a'}; font-weight:600;">₹${bal.toFixed(2)}</td>
+                <td><span style="text-transform:uppercase; font-size:10px; font-weight:700;">${method}</span></td>
+            </tr>`;
+    });
+
+    // Inject compiled layout to hidden rendering engine canvas
+    let canvas = document.getElementById("pdf-render-canvas");
+    canvas.innerHTML = `
+        <div class="pdf-header">
+            <img src="${logoSrc}" alt="Logo">
+            <h2>CITY CHOICE BAKERS</h2>
+            <div class="owner-tag"><i class="fa-solid fa-file-invoice"></i> OFFICIAL SALES STATEMENT</div>
+        </div>
+        
+        <div class="pdf-meta-box">
+            <div>
+                <p><strong>Shop Branch:</strong> ${shopTitle}</p>
+                <p><strong>Scope Schema:</strong> Public Ledger Cache</p>
+            </div>
+            <div style="text-align: right;">
+                <p><strong>Generated On:</strong> ${currentDate}</p>
+                <p><strong>Status:</strong> Synced & Verified</p>
+            </div>
+        </div>
+
+        <table class="pdf-table">
+            <thead>
+                <tr>
+                    <th style="text-align:left;">Shop / Client</th>
+                    <th style="text-align:left;">Salesman</th>
+                    <th style="text-align:left;">Total Amount</th>
+                    <th style="text-align:left;">Paid Amount</th>
+                    <th style="text-align:left;">Balance</th>
+                    <th style="text-align:left;">Mode</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableRowsHtml}
+            </tbody>
+        </table>
+
+        <div class="pdf-summary-block">
+            <div class="pdf-summary-line">
+                <span>Subtotal Cash Sale:</span>
+                <strong>₹${subtotalCash.toFixed(2)}</strong>
+            </div>
+            <div class="pdf-summary-line">
+                <span>Subtotal Online Sale:</span>
+                <strong>₹${subtotalOnline.toFixed(2)}</strong>
+            </div>
+            <div class="pdf-summary-line">
+                <span>Subtotal Mpay Sale:</span>
+                <strong>₹${subtotalMpay.toFixed(2)}</strong>
+            </div>
+            <div class="pdf-summary-line pdf-grand-total">
+                <span>GRAND TOTAL COLLECTED:</span>
+                <span>₹${grandTotalPaid.toFixed(2)}</span>
+            </div>
+        </div>
+    `;
+
+    // High fidelity export settings for HTML2PDF Engine
+    let options = {
+        margin:       10,
+        filename:     `Statement_ChoiceBakers_${branch.toUpperCase()}_Report.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' } // Horizontal view table rows spacing safety 
+    };
+
+    // Compile virtual canvas and execute instant high speed download
+    html2pdf().set(options).from(canvas).save().then(() => {
+        canvas.innerHTML = ""; // Flush memory buffer instantly
+    });
+}
+
+window.onload = function() {
+    syncShopStatuses();
+    syncBranchFinancialMetrics();
+};
+</script>
+<script src="back.js"></script>
+</body>
+</html>

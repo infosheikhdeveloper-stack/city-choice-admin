@@ -283,80 +283,103 @@ border-bottom: 1px solid #eee;
 background: #fff;
 }
 
-/* --- HIDDEN PDF COMPILER INLINE CANVAS BLOCK --- */
+/* --- OPTIMIZED CHROME PDF INLINE CANVAS HOOK --- */
 #pdf-render-canvas {
+    opacity: 0;
     position: absolute;
-    left: -9999px;
-    top: -9999px;
-    width: 790px;
-    background: #fff;
-    padding: 30px;
+    top: 0;
+    left: 0;
+    z-index: -999;
+    width: 750px;
+    background: #ffffff;
+    padding: 24px;
 }
-.pdf-header {
-    background: linear-gradient(135deg, #ff2b2b, #111);
-    color: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    margin-bottom: 25px;
-}
-.pdf-header img {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: #fff;
-    padding: 2px;
-    margin-bottom: 5px;
-}
-.pdf-meta-box {
+
+.pdf-header-container {
+    border-bottom: 3px solid #ff2b2b;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
-    background: #f8f9fa;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    color: #333;
-    margin-bottom: 20px;
-    border: 1px solid #eee;
+    align-items: center;
 }
+
+.pdf-brand h2 {
+    color: #111111;
+    font-size: 24px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pdf-brand p {
+    color: #555555;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.pdf-doc-title {
+    text-align: right;
+}
+
+.pdf-doc-title h3 {
+    color: #ff2b2b;
+    font-size: 16px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.pdf-doc-title p {
+    font-size: 11px;
+    color: #444444;
+    margin-top: 4px;
+}
+
 .pdf-table {
     width: 100%;
     border-collapse: collapse;
+    margin-bottom: 25px;
     font-size: 12px;
-    margin-bottom: 20px;
 }
+
 .pdf-table th {
-    background: #222;
-    color: #fff;
-    padding: 10px;
+    background: #111111;
+    color: #ffffff;
+    padding: 10px 8px;
     font-weight: 600;
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 11px;
 }
+
 .pdf-table td {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
+    padding: 10px 8px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #222222;
 }
-.pdf-summary-block {
-    margin-left: auto;
-    width: 300px;
-    background: #fdf5f5;
-    padding: 15px;
-    border-radius: 8px;
-    border-right: 4px solid #ff2b2b;
-}
-.pdf-summary-line {
+
+.pdf-totals-section {
     display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    margin-bottom: 6px;
-    color: #333;
+    justify-content: flex-end;
 }
-.pdf-grand-total {
-    font-size: 16px;
+
+.pdf-totals-table {
+    width: 280px;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.pdf-totals-table td {
+    padding: 6px 10px;
+    color: #444444;
+}
+
+.pdf-totals-table tr.grand-row td {
+    border-top: 2px dashed #ff2b2b;
+    font-size: 15px;
     font-weight: 700;
     color: #ff2b2b;
-    border-top: 1px solid #ddd;
-    padding-top: 6px;
-    margin-top: 6px;
+    padding-top: 10px;
 }
 </style>
 </head>
@@ -414,7 +437,6 @@ background: #fff;
     <div id="magam-details-sec" class="toggle-section"></div>
 </div>
 
-
 <div class="branch-card" id="branch-kunzer">
     <div class="branch-identity">
         <img src="logo2.png" class="branch-logo" alt="Kunzer Logo">
@@ -462,7 +484,6 @@ background: #fff;
 <div id="pdf-render-canvas"></div>
 
 <script>
-// --- DIRECT INLINE SUPABASE CREDENTIALS SETUP ---
 const SUPABASE_URL = "https://ftuchilcswtnnldrugir.supabase.co"; 
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0dWNoaWxjc3d0bm5sZHJ1Z2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjAyNDQsImV4cCI6MjA5NDczNjI0NH0.88SWE5lvsJD0Fw8x7h4pgAmq1WFRN1qMvmXHCXeDqsU";           
 
@@ -480,7 +501,6 @@ try {
 
 let salesDataCache = { magam: [], kunzer: [] };
 
-// 1. OPERATION METHOD: SYNC SHOP DYNAMIC RUNTIME STATUSES
 async function syncShopStatuses() {
     try {
         if(!db) return;
@@ -512,7 +532,6 @@ async function syncShopStatuses() {
     }
 }
 
-// 2. OPERATION METHOD: AGGREGATE CORE BUSINESS FINANCIAL MATRICES
 async function syncBranchFinancialMetrics() {
     try {
         if(!db) return;
@@ -558,7 +577,6 @@ async function syncBranchFinancialMetrics() {
     }
 }
 
-// 3. SECTIONS COLLAPSE/EXPAND DIAGRAM
 function toggleView(branch, type) {
     let salesSec = document.getElementById(`${branch}-salesmen-sec`);
     let detailsSec = document.getElementById(`${branch}-details-sec`);
@@ -576,7 +594,6 @@ function toggleView(branch, type) {
     }
 }
 
-// 4. VIEW RENDER ROUTINE: SALESMAN MAP OVERVIEW
 function renderSalesmenSection(branch) {
     let container = document.getElementById(`${branch}-salesmen-sec`);
     let branchRows = salesDataCache[branch];
@@ -618,7 +635,6 @@ function renderSalesmenSection(branch) {
     container.innerHTML = html;
 }
 
-// 5. VIEW RENDER ROUTINE: DETAILED RECORDS LOGS WITH EXPORT LOGIC
 function renderDetailsSection(branch) {
     let container = document.getElementById(`${branch}-details-sec`);
     let branchRows = salesDataCache[branch];
@@ -649,7 +665,7 @@ function renderDetailsSection(branch) {
         branchRows.forEach(row => {
             html += `
                 <tr>
-                    <td><b>${row.shop_name}</b><br><span style="font-size:10px; color:#666;">${row.customer_name || 'Walk-in'}</span></td>
+                    <td><b>${row.shop_name}</b><br><span style="font-size:10px; color:#666;">${row.customer_name || 'Walk-in'} (${row.salesman_name || 'Staff'})</span></td>
                     <td>₹${row.total_amount}</td>
                     <td>₹${row.paid_amount}</td>
                     <td style="color:${row.remaining_amount > 0 ? '#dc2626':'#16a34a'}; font-weight:600;">₹${row.remaining_amount}</td>
@@ -662,16 +678,16 @@ function renderDetailsSection(branch) {
     container.innerHTML = html;
 }
 
-// 6. NEW FEATURE: ADVANCE PDF COMPILER STATEMENT GENERATOR ENGINE
+// CHROME DIRECT BLOB DOWNLOAD PIPELINE
 function generatePDFStatement(branch) {
     let rowsData = salesDataCache[branch];
-    if(rowsData.length === 0) return alert("No ledger data rows found to compile PDF document.");
+    if(!rowsData || rowsData.length === 0) {
+        return alert("No sales record available right now to download.");
+    }
 
     let shopTitle = branch.toUpperCase() === "MAGAM" ? "Gulmarg Road Magam" : "Main Market Kunzer";
-    let logoSrc = branch.toUpperCase() === "MAGAM" ? "logo.png" : "logo2.png";
     let currentDate = new Date().toLocaleString('en-IN', { timeZone: 'IST' });
 
-    // Subtotals logic counters
     let subtotalCash = 0;
     let subtotalOnline = 0;
     let subtotalMpay = 0;
@@ -683,52 +699,48 @@ function generatePDFStatement(branch) {
         let paid = Number(row.paid_amount) || 0;
         let bal = Number(row.remaining_amount) || 0;
         let method = row.payment_method || "Cash";
+        let salesman = row.salesman_name || "Staff";
 
         grandTotalPaid += paid;
-        if(method === "Cash") subtotalCash += paid;
-        else if(method === "Online") subtotalOnline += paid;
-        else if(method === "Mpay") subtotalMpay += paid;
+        if(method.toLowerCase() === "cash") subtotalCash += paid;
+        else if(method.toLowerCase() === "online") subtotalOnline += paid;
+        else if(method.toLowerCase() === "mpay") subtotalMpay += paid;
 
         tableRowsHtml += `
             <tr>
-                <td><b>${row.shop_name}</b><br><small style="color:#555;">Client: ${row.customer_name || 'N/A'}</small></td>
-                <td>${row.salesman_name || 'N/A'}</td>
+                <td><strong>${row.shop_name}</strong><br><small style="color:#555;">Cust: ${row.customer_name || 'N/A'}</small></td>
+                <td>${salesman}</td>
                 <td>₹${total.toFixed(2)}</td>
-                <td style="color:#16a34a; font-weight:600;">₹${paid.toFixed(2)}</td>
-                <td style="color:${bal > 0 ? '#dc2626' : '#16a34a'}; font-weight:600;">₹${bal.toFixed(2)}</td>
-                <td><span style="text-transform:uppercase; font-size:10px; font-weight:700;">${method}</span></td>
+                <td style="color:#16a34a; font-weight:bold;">₹${paid.toFixed(2)}</td>
+                <td style="color:${bal > 0 ? '#dc2626' : '#16a34a'};">₹${bal.toFixed(2)}</td>
+                <td style="text-transform:uppercase; font-size:11px; font-weight:bold;">${method}</td>
             </tr>`;
     });
 
-    // Inject compiled layout to hidden rendering engine canvas
     let canvas = document.getElementById("pdf-render-canvas");
+    
+    // Injecting professional white corporate background layout
     canvas.innerHTML = `
-        <div class="pdf-header">
-            <img src="${logoSrc}" alt="Logo">
-            <h2>CITY CHOICE BAKERS</h2>
-            <div class="owner-tag"><i class="fa-solid fa-file-invoice"></i> OFFICIAL SALES STATEMENT</div>
-        </div>
-        
-        <div class="pdf-meta-box">
-            <div>
-                <p><strong>Shop Branch:</strong> ${shopTitle}</p>
-                <p><strong>Scope Schema:</strong> Public Ledger Cache</p>
+        <div class="pdf-header-container">
+            <div class="pdf-brand">
+                <h2>CITY CHOICE BAKERS</h2>
+                <p><i class="fa-solid fa-location-dot"></i> ${shopTitle}</p>
             </div>
-            <div style="text-align: right;">
-                <p><strong>Generated On:</strong> ${currentDate}</p>
-                <p><strong>Status:</strong> Synced & Verified</p>
+            <div class="pdf-doc-title">
+                <h3>Sales Statement</h3>
+                <p><strong>Date:</strong> ${currentDate}</p>
             </div>
         </div>
 
         <table class="pdf-table">
             <thead>
                 <tr>
-                    <th style="text-align:left;">Shop / Client</th>
-                    <th style="text-align:left;">Salesman</th>
-                    <th style="text-align:left;">Total Amount</th>
-                    <th style="text-align:left;">Paid Amount</th>
-                    <th style="text-align:left;">Balance</th>
-                    <th style="text-align:left;">Mode</th>
+                    <th>Shop / Customer Name</th>
+                    <th>Salesman</th>
+                    <th>Total Bill</th>
+                    <th>Paid Amount</th>
+                    <th>Balance</th>
+                    <th>Payment Mode</th>
                 </tr>
             </thead>
             <tbody>
@@ -736,44 +748,54 @@ function generatePDFStatement(branch) {
             </tbody>
         </table>
 
-        <div class="pdf-summary-block">
-            <div class="pdf-summary-line">
-                <span>Subtotal Cash Sale:</span>
-                <strong>₹${subtotalCash.toFixed(2)}</strong>
-            </div>
-            <div class="pdf-summary-line">
-                <span>Subtotal Online Sale:</span>
-                <strong>₹${subtotalOnline.toFixed(2)}</strong>
-            </div>
-            <div class="pdf-summary-line">
-                <span>Subtotal Mpay Sale:</span>
-                <strong>₹${subtotalMpay.toFixed(2)}</strong>
-            </div>
-            <div class="pdf-summary-line pdf-grand-total">
-                <span>GRAND TOTAL COLLECTED:</span>
-                <span>₹${grandTotalPaid.toFixed(2)}</span>
-            </div>
+        <div class="pdf-totals-section">
+            <table class="pdf-totals-table">
+                <tr>
+                    <td>Total Cash Collected:</td>
+                    <td style="text-align:right; font-weight:600;">₹${subtotalCash.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td>Total Online Collected:</td>
+                    <td style="text-align:right; font-weight:600;">₹${subtotalOnline.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td>Total Mpay Collected:</td>
+                    <td style="text-align:right; font-weight:600;">₹${subtotalMpay.toFixed(2)}</td>
+                </tr>
+                <tr class="grand-row">
+                    <td>Grand Total:</td>
+                    <td style="text-align:right;">₹${grandTotalPaid.toFixed(2)}</td>
+                </tr>
+            </table>
         </div>
     `;
 
-    // High fidelity export settings for HTML2PDF Engine
-    let options = {
-        margin:       10,
-        filename:     `Statement_ChoiceBakers_${branch.toUpperCase()}_Report.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' } // Horizontal view table rows spacing safety 
+    // Chrome direct stream optimization options
+    const options = {
+        margin: [10, 10, 10, 10],
+        filename: `Sales_Statement_${branch}_${new Date().toISOString().slice(0,10)}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // Compile virtual canvas and execute instant high speed download
-    html2pdf().set(options).from(canvas).save().then(() => {
-        canvas.innerHTML = ""; // Flush memory buffer instantly
+    // Instant download stream execution without screen blocking
+    html2pdf().from(canvas).set(options).toPdf().get('pdf').then(function (pdf) {
+        pdf.save();
+        canvas.innerHTML = ""; // Flushes memory stack completely
+    }).catch(err => {
+        alert("Chrome direct download failed: " + err.message);
     });
 }
 
 window.onload = function() {
     syncShopStatuses();
     syncBranchFinancialMetrics();
+    
+    setInterval(() => {
+        syncShopStatuses();
+        syncBranchFinancialMetrics();
+    }, 30000);
 };
 </script>
 <script src="back.js"></script>

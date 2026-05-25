@@ -283,7 +283,7 @@ border-bottom: 1px solid #eee;
 background: #fff;
 }
 
-/* --- FIXED PDF CANVAS ENGINE CONFIGURATION --- */
+/* --- FIXED PDF CANVAS: MULTI-PAGE NO-CUT DESIGN --- */
 #pdf-render-canvas {
     display: none;
     width: 790px;
@@ -350,15 +350,24 @@ background: #fff;
     border: 1px solid #111111;
 }
 
+/* Row-break avoid configuration prevents row cuts */
+.pdf-table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+}
+
 .pdf-table td {
     padding: 10px 8px;
     border: 1px solid #e0e0e0;
     color: #222222;
 }
 
+/* Prevent totals box from breaking awkwardly */
 .pdf-totals-section {
     display: flex;
     justify-content: flex-end;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
 }
 
 .pdf-totals-table {
@@ -676,7 +685,7 @@ function renderDetailsSection(branch) {
     container.innerHTML = html;
 }
 
-// FIXED: CHROMIUM FORCE ENGINE DELAY + TOTALS ARITHMETIC RECONCILIATION
+// FIXED MULTI-PAGE ADVANCED GENERATION PIPELINE
 function generatePDFStatement(branch) {
     let rowsData = salesDataCache[branch];
     if(!rowsData || rowsData.length === 0) {
@@ -701,7 +710,6 @@ function generatePDFStatement(branch) {
 
         grandTotalPaid += paid;
         
-        // Strict method checking with lower casing
         if(method.toLowerCase() === "cash") subtotalCash += paid;
         else if(method.toLowerCase() === "online") subtotalOnline += paid;
         else if(method.toLowerCase() === "mpay") subtotalMpay += paid;
@@ -719,7 +727,6 @@ function generatePDFStatement(branch) {
 
     let canvas = document.getElementById("pdf-render-canvas");
     
-    // HTML structure binding with parsed dynamic values
     canvas.innerHTML = `
         <div class="pdf-header-container">
             <div class="pdf-brand">
@@ -770,20 +777,21 @@ function generatePDFStatement(branch) {
         </div>
     `;
 
-    // Force block visible element setup before rendering snapshot
+    // Make element temporarily visible for accurate compilation
     canvas.style.display = "block";
     canvas.style.position = "relative";
     canvas.style.zIndex = "1";
 
+    // UPDATED OPTIONS: Added smart page-break controls to prevent cutting
     const options = {
-        margin: [10, 10, 10, 10],
+        margin: [12, 12, 12, 12],
         filename: `Sales_Statement_${branch}_${new Date().toISOString().slice(0,10)}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } // Forces auto page creation when data overflows
     };
 
-    // Delay thread for complete template string parse compilation
     setTimeout(() => {
         html2pdf().from(canvas).set(options).save().then(() => {
             canvas.style.display = "none";
@@ -792,7 +800,7 @@ function generatePDFStatement(branch) {
             console.error("PDF generation dropped:", err.message);
             canvas.style.display = "none";
         });
-    }, 250);
+    }, 300);
 }
 
 window.onload = function() {

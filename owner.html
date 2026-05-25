@@ -283,9 +283,9 @@ border-bottom: 1px solid #eee;
 background: #fff;
 }
 
-/* --- FIXED PDF CANVAS OVERRIDE FOR CHROME RECONCILIATION --- */
+/* --- FIXED PDF CANVAS ENGINE CONFIGURATION --- */
 #pdf-render-canvas {
-    display: none; /* Hide entirely when idle */
+    display: none;
     width: 790px;
     background: #ffffff;
     padding: 30px;
@@ -556,7 +556,7 @@ async function syncBranchFinancialMetrics() {
                 let amt = Number(row.paid_amount) || 0;
                 counters[branchKey].total += amt;
 
-                let mode = (row.payment_method || "").toLowerCase();
+                let mode = (row.payment_method || "").toLowerCase().trim();
                 if (mode === "cash") counters[branchKey].cash += amt;
                 else if (mode === "online") counters[branchKey].online += amt;
                 else if (mode === "mpay") counters[branchKey].mpay += amt;
@@ -676,7 +676,7 @@ function renderDetailsSection(branch) {
     container.innerHTML = html;
 }
 
-// FIXED: CHROMIUM FORCE ENGINE DELAY DATA INJECTION PIPELINE
+// FIXED: CHROMIUM FORCE ENGINE DELAY + TOTALS ARITHMETIC RECONCILIATION
 function generatePDFStatement(branch) {
     let rowsData = salesDataCache[branch];
     if(!rowsData || rowsData.length === 0) {
@@ -696,10 +696,12 @@ function generatePDFStatement(branch) {
         let total = Number(row.total_amount) || 0;
         let paid = Number(row.paid_amount) || 0;
         let bal = Number(row.remaining_amount) || 0;
-        let method = row.payment_method || "Cash";
+        let method = (row.payment_method || "Cash").trim();
         let salesman = row.salesman_name || "Staff";
 
         grandTotalPaid += paid;
+        
+        // Strict method checking with lower casing
         if(method.toLowerCase() === "cash") subtotalCash += paid;
         else if(method.toLowerCase() === "online") subtotalOnline += paid;
         else if(method.toLowerCase() === "mpay") subtotalMpay += paid;
@@ -717,7 +719,7 @@ function generatePDFStatement(branch) {
 
     let canvas = document.getElementById("pdf-render-canvas");
     
-    // HTML build structurally forced into DOM tree
+    // HTML structure binding with parsed dynamic values
     canvas.innerHTML = `
         <div class="pdf-header-container">
             <div class="pdf-brand">
@@ -768,7 +770,7 @@ function generatePDFStatement(branch) {
         </div>
     `;
 
-    // CRITICAL: Force display layer visibility temporary so Chrome thread can catch up and compile columns/rows
+    // Force block visible element setup before rendering snapshot
     canvas.style.display = "block";
     canvas.style.position = "relative";
     canvas.style.zIndex = "1";
@@ -781,14 +783,13 @@ function generatePDFStatement(branch) {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // 250 Milliseconds execution window freeze for safe data binding sync
+    // Delay thread for complete template string parse compilation
     setTimeout(() => {
         html2pdf().from(canvas).set(options).save().then(() => {
-            // Re-hide after perfect generation
             canvas.style.display = "none";
             canvas.innerHTML = ""; 
         }).catch(err => {
-            console.error("PDF execution thread dropped:", err.message);
+            console.error("PDF generation dropped:", err.message);
             canvas.style.display = "none";
         });
     }, 250);

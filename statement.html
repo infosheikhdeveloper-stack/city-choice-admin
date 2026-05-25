@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Branch Statements - City Choice Bakers</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#f6f6f6;
+padding:20px;
+padding-bottom:60px;
+}
+
+/* BRAND HEADER MATCHING OWNER PANEL */
+.header{
+background:linear-gradient(135deg,#ff2b2b,#111);
+color:#fff;
+padding:25px 20px;
+border-radius:20px;
+text-align:center;
+margin-bottom:25px;
+box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.header img.logo{
+width:75px;
+height:75px;
+border-radius:50%;
+background:#fff;
+padding:4px;
+margin-bottom:8px;
+border: 2px solid #ff2b2b;
+}
+
+.header h2{
+font-size:24px;
+letter-spacing: 0.5px;
+text-transform: uppercase;
+}
+
+.header .owner-tag {
+background: rgba(255, 255, 255, 0.2);
+display: inline-flex;
+align-items: center;
+gap: 8px;
+padding: 6px 18px;
+border-radius: 20px;
+font-size: 13px;
+margin-top: 10px;
+font-weight: 600;
+backdrop-filter: blur(5px);
+border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* BRANCH SELECTION GRID */
+.branch-grid {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 15px;
+margin-bottom: 25px;
+}
+
+.branch-selector-card {
+background: #fff;
+border-radius: 15px;
+padding: 20px;
+text-align: center;
+border: 1px solid #eee;
+cursor: pointer;
+transition: 0.3s ease;
+box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+
+.branch-selector-card:hover {
+transform: translateY(-3px);
+border-color: #ff2b2b;
+box-shadow: 0 5px 15px rgba(255, 43, 43, 0.1);
+}
+
+.branch-selector-card.active {
+background: #fff5h5;
+border-color: #ff2b2b;
+background: linear-gradient(145deg, #ffffff, #fff0f0);
+}
+
+.branch-selector-card i {
+font-size: 30px;
+color: #ff2b2b;
+margin-bottom: 10px;
+}
+
+.branch-selector-card h3 {
+font-size: 16px;
+color: #111;
+text-transform: uppercase;
+}
+
+/* STATEMENT VIEWER CONTAINER */
+.statement-box {
+background: #fff;
+border-radius: 20px;
+padding: 20px;
+border: 1px solid #eee;
+box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+display: none; /* Hidden until branch click */
+}
+
+.statement-title {
+border-bottom: 2px solid #111;
+padding-bottom: 10px;
+margin-bottom: 15px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.statement-title h4 {
+font-size: 16px;
+color: #111;
+text-transform: uppercase;
+}
+
+/* FINANCIAL MINI BOARD */
+.summary-strip {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 10px;
+margin-bottom: 20px;
+}
+
+.sum-box {
+background: #f9f9f9;
+padding: 12px;
+border-radius: 10px;
+text-align: center;
+border-top: 3px solid #ddd;
+}
+.sb-cash { border-top-color: #16a34a; }
+.sb-online { border-top-color: #0284c7; }
+.sb-mpay { border-top-color: #7e22ce; }
+.sb-grand { border-top-color: #ff2b2b; background: #fff5f5; }
+
+.sum-box span {
+font-size: 10px;
+color: #666;
+text-transform: uppercase;
+display: block;
+font-weight: 600;
+}
+
+.sum-box h5 {
+font-size: 15px;
+color: #222;
+margin-top: 2px;
+}
+
+/* TABLE RESPONSIVE DESIGN */
+.table-container {
+width: 100%;
+overflow-x: auto;
+border: 1px solid #eee;
+border-radius: 10px;
+}
+
+.statement-table {
+width: 100%;
+border-collapse: collapse;
+font-size: 13px;
+text-align: left;
+}
+
+.statement-table th {
+background: #111;
+color: #fff;
+padding: 12px 10px;
+font-weight: 500;
+}
+
+.statement-table td {
+padding: 12px 10px;
+border-bottom: 1px solid #eee;
+background: #fff;
+}
+
+.badge-mode {
+display: inline-block;
+padding: 3px 8px;
+border-radius: 6px;
+font-size: 10px;
+font-weight: 700;
+text-transform: uppercase;
+}
+.bm-cash { background: #dcfce7; color: #16a34a; }
+.bm-online { background: #e0f2fe; color: #0284c7; }
+.bm-mpay { background: #f3e8ff; color: #7e22ce; }
+
+.back-btn {
+display: block;
+text-align: center;
+margin-top: 20px;
+font-size: 13px;
+color: #666;
+text-decoration: none;
+font-weight: 600;
+}
+.back-btn:hover { color: #ff2b2b; }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <img src="logo.png" class="logo" alt="City Choice Main Logo">
+    <h2>CITY CHOICE BAKERS</h2>
+    <div class="owner-tag">
+        <i class="fa-solid fa-file-invoice-dollar"></i> Live Sales Ledger & Statement Room
+    </div>
+</div>
+
+<div class="branch-grid">
+    <div class="branch-selector-card" id="card-magam" onclick="fetchBranchStatement('magam')">
+        <i class="fa-solid fa-shop"></i>
+        <h3>Magam Branch</h3>
+        <small style="color:#666;">Gulmarg Road</small>
+    </div>
+    <div class="branch-selector-card" id="card-kunzer" onclick="fetchBranchStatement('kunzer')">
+        <i class="fa-solid fa-store"></i>
+        <h3>Kunzer Branch</h3>
+        <small style="color:#666;">Main Market</small>
+    </div>
+</div>
+
+<div class="statement-box" id="statementViewer">
+    <div class="statement-title">
+        <h4 id="activeBranchTitle">Branch Ledger</h4>
+        <span id="ledgerTimestamp" style="font-size:11px; color:#666; font-weight:600;"></span>
+    </div>
+
+    <div class="summary-strip">
+        <div class="sum-box sb-cash">
+            <span>Total Cash</span>
+            <h5 id="totalCashBox">₹0</h5>
+        </div>
+        <div class="sum-box sb-online">
+            <span>Total Online</span>
+            <h5 id="totalOnlineBox">₹0</h5>
+        </div>
+        <div class="sum-box sb-mpay">
+            <span>Total Mpay</span>
+            <h5 id="totalMpayBox">₹0</h5>
+        </div>
+        <div class="sum-box sb-grand">
+            <span>Grand Total Collected</span>
+            <h5 id="grandTotalBox" style="color:#ff2b2b; font-weight:700;">₹0</h5>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="statement-table">
+            <thead>
+                <tr>
+                    <th>Customer / Shop</th>
+                    <th>Salesman Name</th>
+                    <th>Total Bill</th>
+                    <th>Paid Amount</th>
+                    <th>Balance</th>
+                    <th>Payment Method</th>
+                </tr>
+            </thead>
+            <tbody id="statementTableBody">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Return to Main Desk</a>
+
+<script>
+const SUPABASE_URL = "https://ftuchilcswtnnldrugir.supabase.co"; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0dWNoaWxjc3d0bm5sZHJ1Z2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjAyNDQsImV4cCI6MjA5NDczNjI0NH0.88SWE5lvsJD0Fw8x7h4pgAmq1WFRN1qMvmXHCXeDqsU";           
+
+let db;
+
+try {
+    if (typeof supabase !== 'undefined') {
+        db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } else {
+        alert("Supabase integration engine framework script trace missing!");
+    }
+} catch(err) {
+    console.error("Database cloud framework connection failed:", err.message);
+}
+
+async function fetchBranchStatement(branchKey) {
+    // UI active classes reset configuration
+    document.getElementById("card-magam").classList.remove("active");
+    document.getElementById("card-kunzer").classList.remove("active");
+    document.getElementById(`card-${branchKey}`).classList.add("active");
+
+    const viewer = document.getElementById("statementViewer");
+    const tbody = document.getElementById("statementTableBody");
+    
+    viewer.style.display = "block";
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#666;"><i class="fa-solid fa-spinner fa-spin"></i> Fetching secure ledger records...</td></tr>`;
+
+    // Resetting analytics display blocks
+    document.getElementById("totalCashBox").innerText = "₹0";
+    document.getElementById("totalOnlineBox").innerText = "₹0";
+    document.getElementById("totalMpayBox").innerText = "₹0";
+    document.getElementById("grandTotalBox").innerText = "₹0";
+
+    try {
+        if(!db) return;
+        
+        // Fetch all sales rows from table
+        const { data: records, error } = await db.from("shop_sale").select("*");
+        if (error) throw error;
+
+        // Filter data rows matching active key condition
+        let filteredRows = records.filter(row => {
+            let name = (row.shop_name || "").toLowerCase();
+            return name.includes(branchKey);
+        });
+
+        document.getElementById("activeBranchTitle").innerText = branchKey.toUpperCase() + " BRANCH STATEMENT DIRECTORY";
+        document.getElementById("ledgerTimestamp").innerText = new Date().toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+
+        if(filteredRows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:25px; color:#999; font-weight:500;">No operational sales entries logged for this branch today.</td></tr>`;
+            return;
+        }
+
+        let tCash = 0, tOnline = 0, tMpay = 0, grandPaid = 0;
+        let htmlRows = "";
+
+        filteredRows.forEach(row => {
+            let totalBill = Number(row.total_amount) || 0;
+            let paidAmount = Number(row.paid_amount) || 0;
+            let balance = Number(row.remaining_amount) || 0;
+            let method = (row.payment_method || "Cash").trim().toLowerCase();
+
+            grandPaid += paidAmount;
+
+            // Increment separate matching financial blocks
+            let modeBadgeClass = "bm-cash";
+            if(method === "cash") { tCash += paidAmount; modeBadgeClass = "bm-cash"; }
+            else if(method === "online") { tOnline += paidAmount; modeBadgeClass = "bm-online"; }
+            else if(method === "mpay") { tMpay += paidAmount; modeBadgeClass = "bm-mpay"; }
+
+            htmlRows += `
+                <tr>
+                    <td><strong>${row.shop_name || 'N/A'}</strong><br><small style="color:#666;">${row.customer_name || 'Walk-in Client'}</small></td>
+                    <td><i class="fa-solid fa-user-tag" style="font-size:11px; color:#ff2b2b;"></i> ${row.salesman_name || 'Staff User'}</td>
+                    <td>₹${totalBill}</td>
+                    <td style="color:#16a34a; font-weight:600;">₹${paidAmount}</td>
+                    <td style="color:${balance > 0 ? '#dc2626' : '#16a34a'}; font-weight:600;">₹${balance}</td>
+                    <td><span class="badge-mode ${modeBadgeClass}">${method}</span></td>
+                </tr>`;
+        });
+
+        // Update financial text nodes instantly
+        document.getElementById("totalCashBox").innerText = "₹" + tCash;
+        document.getElementById("totalOnlineBox").innerText = "₹" + tOnline;
+        document.getElementById("totalMpayBox").innerText = "₹" + tMpay;
+        document.getElementById("grandTotalBox").innerText = "₹" + grandPaid;
+
+        tbody.innerHTML = htmlRows;
+
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#dc2626; font-weight:600;">Error compilation: ${e.message}</td></tr>`;
+    }
+}
+</script>
+</body>
+</html>

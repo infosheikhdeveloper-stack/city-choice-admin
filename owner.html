@@ -388,6 +388,17 @@ background: #fff;
     color: #ff2b2b;
     padding-top: 10px;
 }
+.pdf-totals-section{
+    display:block !important;
+    margin-top:20px;
+    page-break-inside:avoid;
+}
+
+.pdf-totals-table{
+    width:100%;
+    max-width:300px;
+    margin-left:auto;
+}
 </style>
 </head>
 <body>
@@ -708,11 +719,22 @@ function generatePDFStatement(branch) {
         let method = (row.payment_method || "Cash").trim();
         let salesman = row.salesman_name || "Staff";
 
+console.log("Payment Method:", row.payment_method);
+
+
         grandTotalPaid += paid;
         
-        if(method.toLowerCase() === "cash") subtotalCash += paid;
-        else if(method.toLowerCase() === "online") subtotalOnline += paid;
-        else if(method.toLowerCase() === "mpay") subtotalMpay += paid;
+        const mode = method.toLowerCase().trim();
+
+if(mode.includes("cash")){
+    subtotalCash += paid;
+}
+else if(mode.includes("online")){
+    subtotalOnline += paid;
+}
+else if(mode.includes("mpay") || mode.includes("m-pay")){
+    subtotalMpay += paid;
+}
 
         tableRowsHtml += `
             <tr>

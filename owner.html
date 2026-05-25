@@ -283,16 +283,13 @@ border-bottom: 1px solid #eee;
 background: #fff;
 }
 
-/* --- OPTIMIZED CHROME PDF INLINE CANVAS HOOK --- */
+/* --- FIXED PDF CANVAS OVERRIDE FOR CHROME RECONCILIATION --- */
 #pdf-render-canvas {
-    opacity: 0;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -999;
-    width: 750px;
+    display: none; /* Hide entirely when idle */
+    width: 790px;
     background: #ffffff;
-    padding: 24px;
+    padding: 30px;
+    box-sizing: border-box;
 }
 
 .pdf-header-container {
@@ -350,11 +347,12 @@ background: #fff;
     text-align: left;
     text-transform: uppercase;
     font-size: 11px;
+    border: 1px solid #111111;
 }
 
 .pdf-table td {
     padding: 10px 8px;
-    border-bottom: 1px solid #e0e0e0;
+    border: 1px solid #e0e0e0;
     color: #222222;
 }
 
@@ -678,7 +676,7 @@ function renderDetailsSection(branch) {
     container.innerHTML = html;
 }
 
-// CHROME DIRECT BLOB DOWNLOAD PIPELINE
+// FIXED: CHROMIUM FORCE ENGINE DELAY DATA INJECTION PIPELINE
 function generatePDFStatement(branch) {
     let rowsData = salesDataCache[branch];
     if(!rowsData || rowsData.length === 0) {
@@ -712,14 +710,14 @@ function generatePDFStatement(branch) {
                 <td>${salesman}</td>
                 <td>₹${total.toFixed(2)}</td>
                 <td style="color:#16a34a; font-weight:bold;">₹${paid.toFixed(2)}</td>
-                <td style="color:${bal > 0 ? '#dc2626' : '#16a34a'};">₹${bal.toFixed(2)}</td>
+                <td style="color:${bal > 0 ? '#dc2626' : '#16a34a'}; font-weight:bold;">₹${bal.toFixed(2)}</td>
                 <td style="text-transform:uppercase; font-size:11px; font-weight:bold;">${method}</td>
             </tr>`;
     });
 
     let canvas = document.getElementById("pdf-render-canvas");
     
-    // Injecting professional white corporate background layout
+    // HTML build structurally forced into DOM tree
     canvas.innerHTML = `
         <div class="pdf-header-container">
             <div class="pdf-brand">
@@ -770,22 +768,30 @@ function generatePDFStatement(branch) {
         </div>
     `;
 
-    // Chrome direct stream optimization options
+    // CRITICAL: Force display layer visibility temporary so Chrome thread can catch up and compile columns/rows
+    canvas.style.display = "block";
+    canvas.style.position = "relative";
+    canvas.style.zIndex = "1";
+
     const options = {
         margin: [10, 10, 10, 10],
         filename: `Sales_Statement_${branch}_${new Date().toISOString().slice(0,10)}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
+        html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // Instant download stream execution without screen blocking
-    html2pdf().from(canvas).set(options).toPdf().get('pdf').then(function (pdf) {
-        pdf.save();
-        canvas.innerHTML = ""; // Flushes memory stack completely
-    }).catch(err => {
-        alert("Chrome direct download failed: " + err.message);
-    });
+    // 250 Milliseconds execution window freeze for safe data binding sync
+    setTimeout(() => {
+        html2pdf().from(canvas).set(options).save().then(() => {
+            // Re-hide after perfect generation
+            canvas.style.display = "none";
+            canvas.innerHTML = ""; 
+        }).catch(err => {
+            console.error("PDF execution thread dropped:", err.message);
+            canvas.style.display = "none";
+        });
+    }, 250);
 }
 
 window.onload = function() {

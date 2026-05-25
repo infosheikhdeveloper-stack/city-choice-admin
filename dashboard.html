@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff2b2b">
 <title>Admin Dashboard - City Choice Bakers</title>
 
 <link rel="stylesheet" href="dashboard.css">
@@ -170,6 +171,25 @@ Owner: Nisar Ahmad Sheikh
 </div>
 
 </div>
+<button id="installBtn" style="
+display:none;
+position:fixed;
+bottom:20px;
+right:20px;
+background:#16a34a;
+color:#fff;
+border:none;
+padding:14px 18px;
+border-radius:50px;
+font-size:14px;
+font-weight:600;
+box-shadow:0 5px 15px rgba(0,0,0,.2);
+z-index:9999;
+cursor:pointer;
+">
+<i class="fa-solid fa-download"></i> Install App
+</button>
+
 
 <script>
 
@@ -257,6 +277,44 @@ cutout: "75%"
 
 loadData();
 
+</script>
+<script>
+let deferredPrompt;
+
+window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    const btn = document.getElementById("installBtn");
+    if(btn) btn.style.display = "block";
+});
+
+document.getElementById("installBtn").addEventListener("click", async () => {
+
+    if(!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+
+    const { outcome } = await deferredPrompt.userChoice;
+
+    if(outcome === "accepted"){
+        console.log("PWA Installed");
+    }
+
+    deferredPrompt = null;
+    document.getElementById("installBtn").style.display = "none";
+});
+
+window.addEventListener("appinstalled", () => {
+    document.getElementById("installBtn").style.display = "none";
+    console.log("App Installed Successfully");
+});
+
+if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("SW Registered"))
+    .catch(err => console.log(err));
+}
 </script>
 
 </body>

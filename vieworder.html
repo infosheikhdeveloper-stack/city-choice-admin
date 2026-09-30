@@ -1,24 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>View Order - City Choice Bakers</title>
 
-<link rel="stylesheet"
+<link
+rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-   <link rel="stylesheet" href="back.css">
+
+<link rel="stylesheet" href="back.css">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 
-/* ===== BASE ===== */
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:"Poppins", sans-serif;
+font-family:"Poppins",Arial,sans-serif;
 }
 
 body{
@@ -27,7 +33,11 @@ padding:20px;
 color:#0f172a;
 }
 
-/* ===== TOAST ===== */
+.container{
+max-width:900px;
+margin:auto;
+}
+
 .toast{
 position:fixed;
 top:-100px;
@@ -39,28 +49,28 @@ border-radius:12px;
 display:flex;
 gap:10px;
 align-items:center;
-box-shadow:0 10px 25px rgba(0,0,0,0.2);
-transition:0.4s;
-z-index:999;
+box-shadow:0 10px 25px rgba(0,0,0,.2);
+transition:.4s;
+z-index:9999;
 }
 
-.toast.show{ top:20px; }
+.toast.show{
+top:20px;
+}
 
-/* ===== CARD ===== */
 .card{
 background:white;
-padding:18px;
+padding:20px;
 border-radius:18px;
+margin-bottom:16px;
+box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+
+.card h2,
+.card h3{
 margin-bottom:15px;
-box-shadow:0 10px 30px rgba(0,0,0,0.08);
-transition:0.3s;
 }
 
-.card:hover{
-transform:rotateX(3deg) rotateY(3deg);
-}
-
-/* GRID */
 .grid{
 display:grid;
 grid-template-columns:1fr 1fr;
@@ -68,46 +78,68 @@ gap:10px;
 font-size:14px;
 }
 
-/* ITEMS */
+.info-box{
+background:#f8fafc;
+padding:12px;
+border-radius:12px;
+}
+
+.info-box small{
+display:block;
+color:#64748b;
+margin-bottom:4px;
+}
+
 .item{
 display:flex;
-gap:10px;
-padding:10px;
+gap:12px;
+padding:12px;
 background:#f8fafc;
-border-radius:10px;
+border-radius:12px;
 margin-bottom:10px;
+align-items:center;
 }
 
 .item img{
-width:55px;
-height:55px;
+width:60px;
+height:60px;
 border-radius:10px;
 object-fit:cover;
+background:#e2e8f0;
 }
 
-/* ADDRESS BOX */
+.item-info{
+flex:1;
+}
+
+.item-price{
+font-weight:800;
+}
+
 .address-box{
-background:#f1f5f9;
-padding:12px;
-border-radius:12px;
-margin-top:10px;
+background:#eff6ff;
+padding:15px;
+border-radius:13px;
+line-height:1.7;
 font-size:14px;
 }
 
-/* BILL */
 .bill-row{
 display:flex;
 justify-content:space-between;
-margin:6px 0;
+gap:10px;
+padding:8px 0;
+border-bottom:1px solid #e2e8f0;
 }
 
 .total{
-font-size:18px;
-font-weight:800;
-margin-top:10px;
+font-size:20px;
+font-weight:900;
+margin-top:12px;
+display:flex;
+justify-content:space-between;
 }
 
-/* BUTTONS */
 .actions{
 display:flex;
 gap:10px;
@@ -115,20 +147,213 @@ flex-wrap:wrap;
 }
 
 .btn{
-padding:10px 14px;
+padding:11px 15px;
 border:none;
 border-radius:12px;
 font-weight:700;
 cursor:pointer;
 display:flex;
-gap:6px;
+gap:7px;
 align-items:center;
 }
 
-.accept{background:#22c55e;color:white;}
-.cancel{background:#ef4444;color:white;}
-.wait{background:#f59e0b;color:white;}
-.invoice{background:#3b82f6;color:white;opacity:0.5;}
+.btn:disabled{
+opacity:.6;
+cursor:not-allowed;
+}
+
+.accept{
+background:#22c55e;
+color:white;
+}
+
+.cancel{
+background:#ef4444;
+color:white;
+}
+
+.wait{
+background:#f59e0b;
+color:white;
+}
+
+.blue{
+background:#2563eb;
+color:white;
+}
+
+.green{
+background:#16a34a;
+color:white;
+}
+
+select,
+input{
+width:100%;
+padding:13px;
+border:1px solid #cbd5e1;
+border-radius:12px;
+outline:none;
+font-size:15px;
+background:white;
+}
+
+select:focus,
+input:focus{
+border-color:#2563eb;
+box-shadow:0 0 0 3px rgba(37,99,235,.1);
+}
+
+label{
+font-weight:700;
+font-size:14px;
+display:block;
+margin-bottom:7px;
+}
+
+.form-group{
+margin-bottom:14px;
+}
+
+.delivery-boy-box{
+background:#eff6ff;
+border:1px solid #bfdbfe;
+border-radius:15px;
+padding:15px;
+margin-top:12px;
+}
+
+.delivery-boy-row{
+display:flex;
+gap:13px;
+align-items:center;
+}
+
+.delivery-avatar{
+width:55px;
+height:55px;
+border-radius:50%;
+background:#2563eb;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:22px;
+flex-shrink:0;
+}
+
+.delivery-boy-info{
+flex:1;
+}
+
+.delivery-boy-info h4{
+font-size:17px;
+}
+
+.delivery-boy-info p{
+font-size:13px;
+color:#64748b;
+margin-top:3px;
+}
+
+.delivery-select-box{
+margin-top:15px;
+background:#f8fafc;
+padding:15px;
+border-radius:14px;
+border:1px solid #e2e8f0;
+}
+
+.delivery-count{
+margin-top:8px;
+font-size:12px;
+color:#64748b;
+}
+
+.delivery-error{
+margin-top:10px;
+padding:12px;
+border-radius:10px;
+background:#fee2e2;
+color:#b91c1c;
+font-size:13px;
+display:none;
+}
+
+.payment-status{
+margin-top:15px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+.payment-box{
+padding:13px;
+border-radius:12px;
+background:#f8fafc;
+}
+
+.payment-box small{
+display:block;
+color:#64748b;
+margin-bottom:4px;
+}
+
+.success-text{
+color:#16a34a;
+font-weight:800;
+}
+
+.warning-text{
+color:#d97706;
+font-weight:800;
+}
+
+.error-box{
+background:#fee2e2;
+color:#b91c1c;
+padding:14px;
+border-radius:12px;
+}
+
+.loading{
+text-align:center;
+padding:40px;
+color:#64748b;
+}
+
+.empty-delivery{
+padding:15px;
+background:#fff7ed;
+border:1px solid #fed7aa;
+border-radius:12px;
+color:#9a3412;
+margin-top:12px;
+}
+
+@media(max-width:600px){
+
+body{
+padding:12px;
+}
+
+.grid{
+grid-template-columns:1fr;
+}
+
+.payment-status{
+grid-template-columns:1fr;
+}
+
+.card{
+padding:15px;
+}
+
+.delivery-boy-row{
+align-items:flex-start;
+}
+
+}
 
 </style>
 
@@ -137,201 +362,1630 @@ align-items:center;
 <body>
 
 <div class="toast" id="toast">
+
 <i class="fa-solid fa-bell"></i>
-<span id="toastMsg">Message</span>
+
+<span id="toastMsg">
+Message
+</span>
+
 </div>
 
-<div id="container">Loading...</div>
+
+<div class="container">
+
+<div id="container" class="loading">
+Loading order...
+</div>
+
+</div>
+
 
 <script>
 
-const sb = window.supabase.createClient(
-"https://ftuchilcswtnnldrugir.supabase.co",
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0dWNoaWxjc3d0bm5sZHJ1Z2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjAyNDQsImV4cCI6MjA5NDczNjI0NH0.88SWE5lvsJD0Fw8x7h4pgAmq1WFRN1qMvmXHCXeDqsU"
+/* =====================================================
+   SUPABASE
+===================================================== */
+
+const SUPABASE_URL =
+"https://ftuchilcswtnnldrugir.supabase.co";
+
+const SUPABASE_ANON_KEY =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0dWNoaWxjc3d0bm5sZHJ1Z2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjAyNDQsImV4cCI6MjA5NDczNjI0NH0.88SWE5lvsJD0Fw8x7h4pgAmq1WFRN1qMvmXHCXeDqsU";
+
+const sb =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_ANON_KEY
 );
 
-const orderId = new URLSearchParams(window.location.search).get("id");
-function toast(msg, icon="fa-check"){
-document.getElementById("toastMsg").innerText = msg;
-const t = document.getElementById("toast");
-t.querySelector("i").className = "fa-solid " + icon;
-t.classList.add("show");
-setTimeout(()=>t.classList.remove("show"),3000);
+
+/* =====================================================
+   ORDER ID
+===================================================== */
+
+const orderId =
+new URLSearchParams(
+window.location.search
+).get("id");
+
+
+/* =====================================================
+   GLOBAL CURRENT ORDER
+===================================================== */
+
+let currentOrder = null;
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+function toast(
+msg,
+icon="fa-check"
+){
+
+const box =
+document.getElementById("toast");
+
+document.getElementById(
+"toastMsg"
+).innerText = msg;
+
+box.querySelector("i").className =
+"fa-solid " + icon;
+
+box.classList.add("show");
+
+setTimeout(()=>{
+box.classList.remove("show");
+},3000);
+
 }
+
+
+/* =====================================================
+   SAFE TEXT
+===================================================== */
+
+function safe(value){
+
+if(
+value === null ||
+value === undefined ||
+value === ""
+){
+
+return "-";
+
+}
+
+return String(value)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+
+/* =====================================================
+   LOAD ORDER
+===================================================== */
 
 async function loadOrder(){
-const { data, error } = await sb
+
+if(!orderId){
+
+document.getElementById(
+"container"
+).innerHTML = `
+
+<div class="error-box">
+
+<i class="fa-solid fa-circle-exclamation"></i>
+
+Order ID missing.
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+/* GET ORDER */
+
+const {
+data:o,
+error
+} = await sb
 .from("orders")
 .select("*")
-.eq("order_id", orderId)
-.single();
+.eq("order_id",orderId)
+.maybeSingle();
 
-if(error || !data){
-document.getElementById("container").innerHTML = "Order not found";
+
+if(error || !o){
+
+console.error(
+"ORDER ERROR:",
+error
+);
+
+document.getElementById(
+"container"
+).innerHTML = `
+
+<div class="error-box">
+
+<b>Order not found.</b>
+
+<br><br>
+
+${safe(error?.message || "No order found.")}
+
+</div>
+
+`;
+
 return;
+
 }
 
-const o = data;
 
-/* SAFE ITEMS */
-let items = [];
+currentOrder = o;
+
+
+/* =====================================================
+   ITEMS
+===================================================== */
+
+let items=[];
+
 try{
-items = typeof o.items === "string" ? JSON.parse(o.items) : (o.items || []);
+
+items =
+typeof o.items === "string"
+? JSON.parse(o.items)
+: (o.items || []);
+
 }catch{
-items = [];
+
+items=[];
+
 }
 
-/* HTML */
-document.getElementById("container").innerHTML = `
 
-<div class="card">
-<h2><i class="fa fa-receipt"></i> Order Details</h2>
+const itemsHTML =
+items.map(item=>{
 
-<div class="grid">
-<p><b>Order ID:</b> ${o.order_id || "-"}</p>
-<p><b>Package:</b> ${o.package_code || "-"}</p>
-<p><b>Date:</b> ${o.created_at ? new Date(o.created_at).toLocaleString() : "-"}</p>
+const qty =
+Number(item.qty) || 0;
 
-<p><b>Name:</b> ${o.customer_name || "-"}</p>
-<p><b>Phone:</b> ${o.phone || "-"}</p>
-<p><b>Email:</b> ${o.email || "-"}</p>
+const price =
+Number(item.price) || 0;
 
-<p><b>Payment:</b> ${o.payment_method || "-"}</p>
-<p><b>Status:</b> ${o.status || "-"}</p>
-</div>
-</div>
+return `
 
-<div class="card">
-<h3>Items</h3>
-
-${items.map(i=>`
 <div class="item">
-<img src="${i.image || ''}">
-<div>
-<b>${i.title || "-"}</b><br>
-<small>${i.description || ""}</small><br>
-Qty: ${i.qty || 0} | ₹${i.price || 0}
-</div>
-</div>
-`).join("")}
-</div>
 
-<div class="card">
-<h3>Bill Summary</h3>
+<img
+src="${safe(item.image)}"
+onerror="this.style.display='none'"
+>
 
-<div class="bill-row"><span>Subtotal</span><span>₹${o.subtotal || 0}</span></div>
-<div class="bill-row"><span>Tax</span><span>₹${o.tax || 0}</span></div>
-<div class="bill-row"><span>Delivery</span><span>₹${o.delivery_charge || 0}</span></div>
-<div class="bill-row"><span>Platform</span><span>₹${o.platform_charge || 0}</span></div>
+<div class="item-info">
 
-<div class="total">Grand Total: ₹${o.grand_total || 0}</div>
-</div>
+<b>
+${safe(
+item.title ||
+item.name ||
+"Product"
+)}
+</b>
 
-<div class="card">
-<h3>Saved Address</h3>
+<br>
 
-<div class="address-box">
-
-<b>Receiver:</b> ${o.customer_name || "-"}<br>
-
-<b>Phone:</b> ${o.phone || "-"}<br>
-
-<b>State:</b> ${o.state || "-"}<br>
-
-<b>District:</b> ${o.district || "-"}<br>
-
-<b>Address 1:</b> ${o.address1 || "-"}<br>
-
-<b>Address 2:</b> ${o.address2 || "-"}<br>
-
-<b>Pincode:</b> ${o.pincode || "-"}<br>
-
-<b>Type:</b> ${o.address_type || "Home"}<br>
+<small>
+Qty: ${qty}
+</small>
 
 </div>
+
+<div class="item-price">
+
+₹${price * qty}
+
 </div>
 
-<div class="card actions">
+</div>
 
-<button class="btn accept" onclick="update('Accepted')">
-<i class="fa fa-check"></i> Accept
-</button>
+`;
 
-<button class="btn wait" onclick="update('Waiting')">
-<i class="fa fa-clock"></i> Waiting
-</button>
+}).join("");
 
-<button class="btn cancel" onclick="update('Cancelled')">
-<i class="fa fa-xmark"></i> Cancel
-</button>
 
-<button class="btn invoice" disabled>
-<i class="fa fa-file"></i> Invoice
-</button>
+/* =====================================================
+   DELIVERY STATUS
+===================================================== */
+
+const deliveryStatus =
+o.delivery_status ||
+"Unassigned";
+
+
+/* =====================================================
+   CURRENT DELIVERY BOY
+===================================================== */
+
+let deliveryBoyHTML = "";
+
+if(o.delivery_boy_id){
+
+deliveryBoyHTML = `
+
+<div class="delivery-boy-box">
+
+<div class="delivery-boy-row">
+
+<div class="delivery-avatar">
+
+<i class="fa-solid fa-motorcycle"></i>
+
+</div>
+
+<div class="delivery-boy-info">
+
+<h4>
+${safe(
+o.delivery_boy_name ||
+"Delivery Boy"
+)}
+</h4>
+
+<p>
+
+<i class="fa-solid fa-phone"></i>
+
+${safe(o.delivery_boy_phone)}
+
+</p>
+
+<p>
+
+Status:
+
+<b>
+${safe(deliveryStatus)}
+</b>
+
+</p>
+
+</div>
+
+</div>
 
 </div>
 
 `;
 
 }
-loadOrder();
-</script>
-<script>
 
-async function update(status){
-alert("ORDER ID = " + orderId);
-alert("Updating status to: " + status);
 
-const { data, error } = await sb
+/* =====================================================
+   PAYMENT
+===================================================== */
+
+const paid =
+Number(o.paid_amount) || 0;
+
+const total =
+Number(o.grand_total) || 0;
+
+const due =
+Math.max(total-paid,0);
+
+const paymentType =
+o.payment_type ||
+o.payment_method ||
+"Not Set";
+
+
+/* =====================================================
+   MAIN HTML
+===================================================== */
+
+document.getElementById(
+"container"
+).innerHTML = `
+
+
+<!-- ORDER DETAILS -->
+
+<div class="card">
+
+<h2>
+
+<i class="fa-solid fa-receipt"></i>
+
+Order Details
+
+</h2>
+
+
+<div class="grid">
+
+
+<div class="info-box">
+
+<small>
+Order ID
+</small>
+
+<b>
+${safe(o.order_id)}
+</b>
+
+</div>
+
+
+<div class="info-box">
+
+<small>
+Package Code
+</small>
+
+<b>
+${safe(o.package_code)}
+</b>
+
+</div>
+
+
+<div class="info-box">
+
+<small>
+Date
+</small>
+
+<b>
+
+${o.created_at
+?new Date(o.created_at).toLocaleString()
+:"-"}
+
+</b>
+
+</div>
+
+
+<div class="info-box">
+
+<small>
+Order Status
+</small>
+
+<b>
+${safe(o.status)}
+</b>
+
+</div>
+
+
+<div class="info-box">
+
+<small>
+Customer
+</small>
+
+<b>
+${safe(o.customer_name)}
+</b>
+
+</div>
+
+
+<div class="info-box">
+
+<small>
+Phone
+</small>
+
+<b>
+${safe(o.phone)}
+</b>
+
+</div>
+
+
+<div class="info-box">
+
+<small>
+Email
+</small>
+
+<b>
+${safe(o.email)}
+</b>
+
+</div>
+
+
+<div class="info-box">
+
+<small>
+Delivery Status
+</small>
+
+<b>
+${safe(deliveryStatus)}
+</b>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- ITEMS -->
+
+<div class="card">
+
+<h3>
+
+<i class="fa-solid fa-bag-shopping"></i>
+
+Ordered Items
+
+</h3>
+
+${itemsHTML || "<p>No items found.</p>"}
+
+</div>
+
+
+<!-- ADDRESS -->
+
+<div class="card">
+
+<h3>
+
+<i class="fa-solid fa-location-dot"></i>
+
+Saved Address
+
+</h3>
+
+
+<div class="address-box">
+
+<b>Receiver:</b>
+${safe(o.customer_name)}
+
+<br>
+
+<b>Phone:</b>
+${safe(o.phone)}
+
+<br>
+
+<b>State:</b>
+${safe(o.state)}
+
+<br>
+
+<b>District:</b>
+${safe(o.district)}
+
+<br>
+
+<b>Address 1:</b>
+${safe(o.address1)}
+
+<br>
+
+<b>Address 2:</b>
+${safe(o.address2)}
+
+<br>
+
+<b>Pincode:</b>
+${safe(o.pincode)}
+
+<br>
+
+<b>Type:</b>
+${safe(o.address_type)}
+
+</div>
+
+</div>
+
+
+<!-- DELIVERY BOY -->
+
+<div class="card">
+
+<h3>
+
+<i class="fa-solid fa-motorcycle"></i>
+
+Delivery Boy
+
+</h3>
+
+
+${deliveryBoyHTML}
+
+
+<div class="delivery-select-box">
+
+<label>
+
+Select Delivery Boy
+
+</label>
+
+
+<select id="deliveryBoySelect">
+
+<option value="">
+Loading delivery boys...
+</option>
+
+</select>
+
+
+<div
+id="deliveryBoyCount"
+class="delivery-count">
+Loading...
+</div>
+
+
+<div
+id="deliveryBoyError"
+class="delivery-error">
+</div>
+
+
+<button
+id="assignBtn"
+class="btn blue"
+style="margin-top:12px;"
+onclick="assignDeliveryBoy()">
+
+<i class="fa-solid fa-user-check"></i>
+
+Assign Delivery Boy
+
+</button>
+
+
+</div>
+
+</div>
+
+
+<!-- PAYMENT CONTROL -->
+
+<div class="card">
+
+<h3>
+
+<i class="fa-solid fa-wallet"></i>
+
+Payment Control
+
+</h3>
+
+
+<div class="form-group">
+
+<label>
+Payment Type
+</label>
+
+
+<select id="paymentType">
+
+<option value="Cash on Delivery">
+Cash on Delivery
+</option>
+
+<option value="WhatsApp Payment">
+WhatsApp Payment
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Paid Amount
+</label>
+
+
+<input
+type="number"
+id="paidAmount"
+min="0"
+placeholder="Enter amount paid by user"
+>
+
+
+</div>
+
+
+<button
+class="btn green"
+onclick="savePayment()">
+
+<i class="fa-solid fa-save"></i>
+
+Save Payment
+
+</button>
+
+
+<div class="payment-status">
+
+
+<div class="payment-box">
+
+<small>
+Payment Type
+</small>
+
+<b id="currentPaymentType">
+${safe(paymentType)}
+</b>
+
+</div>
+
+
+<div class="payment-box">
+
+<small>
+Paid Amount
+</small>
+
+<b class="success-text">
+₹${paid}
+</b>
+
+</div>
+
+
+<div class="payment-box">
+
+<small>
+Grand Total
+</small>
+
+<b>
+₹${total}
+</b>
+
+</div>
+
+
+<div class="payment-box">
+
+<small>
+Remaining Due
+</small>
+
+<b class="${
+due > 0
+? "warning-text"
+: "success-text"
+}">
+
+₹${due}
+
+</b>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- BILL -->
+
+<div class="card">
+
+<h3>
+
+<i class="fa-solid fa-file-invoice"></i>
+
+Bill Summary
+
+</h3>
+
+
+<div class="bill-row">
+
+<span>
+Subtotal
+</span>
+
+<b>
+₹${Number(o.subtotal)||0}
+</b>
+
+</div>
+
+
+<div class="bill-row">
+
+<span>
+Tax
+</span>
+
+<b>
+₹${Number(o.tax)||0}
+</b>
+
+</div>
+
+
+<div class="bill-row">
+
+<span>
+Delivery
+</span>
+
+<b>
+₹${Number(o.delivery_charge)||0}
+</b>
+
+</div>
+
+
+<div class="bill-row">
+
+<span>
+Platform
+</span>
+
+<b>
+₹${Number(o.platform_charge)||0}
+</b>
+
+</div>
+
+
+<div class="total">
+
+<span>
+Grand Total
+</span>
+
+<span>
+₹${total}
+</span>
+
+</div>
+
+</div>
+
+
+<!-- ORDER CONTROL -->
+
+<div class="card">
+
+<h3>
+
+<i class="fa-solid fa-gears"></i>
+
+Order Control
+
+</h3>
+
+
+<div class="actions">
+
+
+<button
+class="btn accept"
+onclick="updateStatus('Accepted')">
+
+<i class="fa-solid fa-check"></i>
+
+Accept
+
+</button>
+
+
+<button
+class="btn wait"
+onclick="updateStatus('Waiting')">
+
+<i class="fa-solid fa-clock"></i>
+
+Waiting
+
+</button>
+
+
+<button
+class="btn cancel"
+onclick="updateStatus('Cancelled')">
+
+<i class="fa-solid fa-xmark"></i>
+
+Cancel
+
+</button>
+
+
+</div>
+
+</div>
+
+`;
+
+
+/* =====================================================
+   PAYMENT VALUES
+===================================================== */
+
+document.getElementById(
+"paymentType"
+).value =
+o.payment_type ||
+o.payment_method ||
+"Cash on Delivery";
+
+
+document.getElementById(
+"paidAmount"
+).value =
+paid;
+
+
+/* =====================================================
+   LOAD DELIVERY BOYS
+===================================================== */
+
+await loadDeliveryBoys();
+
+}
+
+
+/* =====================================================
+   LOAD DELIVERY BOYS
+   FROM public.delivery_boys
+===================================================== */
+
+async function loadDeliveryBoys(){
+
+const select =
+document.getElementById(
+"deliveryBoySelect"
+);
+
+const count =
+document.getElementById(
+"deliveryBoyCount"
+);
+
+const errorBox =
+document.getElementById(
+"deliveryBoyError"
+);
+
+
+if(!select) return;
+
+
+select.innerHTML = `
+
+<option value="">
+Loading delivery boys...
+</option>
+
+`;
+
+count.innerText =
+"Loading delivery boys...";
+
+errorBox.style.display =
+"none";
+
+
+/* =====================================================
+   IMPORTANT:
+   NO .eq("is_active",true) HERE.
+   First get all rows.
+   Then check is_active in JS.
+===================================================== */
+
+const {
+data,
+error
+} = await sb
+.from("delivery_boys")
+.select(
+"id,user_id,name,phone,email,is_active,created_at"
+)
+.order(
+"name",
+{ascending:true}
+);
+
+
+/* DEBUG */
+
+console.log(
+"DELIVERY BOYS FROM SUPABASE:",
+data
+);
+
+console.log(
+"DELIVERY BOYS QUERY ERROR:",
+error
+);
+
+
+/* ERROR */
+
+if(error){
+
+console.error(
+"FULL DELIVERY BOYS ERROR:",
+JSON.stringify(
+error,
+null,
+2
+)
+);
+
+
+select.innerHTML = `
+
+<option value="">
+Unable to load delivery boys
+</option>
+
+`;
+
+
+count.innerText =
+"Database query failed.";
+
+
+errorBox.innerHTML = `
+
+<b>
+Delivery boys load failed
+</b>
+
+<br><br>
+
+${safe(
+error.message ||
+error.details ||
+"Unknown Supabase error"
+)}
+
+<br><br>
+
+Check Supabase RLS policy.
+
+`;
+
+
+errorBox.style.display =
+"block";
+
+return;
+
+}
+
+
+/* =====================================================
+   FILTER ACTIVE BOYS
+===================================================== */
+
+const activeBoys =
+(data || []).filter(
+boy =>
+boy.is_active === true
+);
+
+
+/* =====================================================
+   NO ACTIVE BOYS
+===================================================== */
+
+if(activeBoys.length === 0){
+
+select.innerHTML = `
+
+<option value="">
+No Active Delivery Boy
+</option>
+
+`;
+
+
+count.innerText =
+`Found ${
+(data || []).length
+} total delivery boy(s), but 0 active.`;
+
+
+errorBox.innerHTML = `
+
+<b>
+No active delivery boy found.
+</b>
+
+<br><br>
+
+Supabase se ${
+(data || []).length
+} row(s) mili hain, lekin
+<code>is_active</code> true wali row nahi mili.
+
+`;
+
+
+errorBox.style.display =
+"block";
+
+return;
+
+}
+
+
+/* =====================================================
+   POPULATE SELECT
+===================================================== */
+
+select.innerHTML = `
+
+<option value="">
+Select Delivery Boy
+</option>
+
+`;
+
+
+activeBoys.forEach(
+boy => {
+
+const option =
+document.createElement(
+"option"
+);
+
+
+option.value =
+boy.id;
+
+
+option.textContent =
+boy.name
++
+(
+boy.phone
+? " - " + boy.phone
+: ""
+);
+
+
+select.appendChild(
+option
+);
+
+});
+
+
+count.innerText =
+`${activeBoys.length} active delivery boy(s) available.`;
+
+
+/* =====================================================
+   SELECT CURRENT ASSIGNED BOY
+===================================================== */
+
+if(
+currentOrder &&
+currentOrder.delivery_boy_id
+){
+
+select.value =
+currentOrder.delivery_boy_id;
+
+}
+
+}
+
+
+/* =====================================================
+   ASSIGN DELIVERY BOY
+===================================================== */
+
+async function assignDeliveryBoy(){
+
+const select =
+document.getElementById(
+"deliveryBoySelect"
+);
+
+const button =
+document.getElementById(
+"assignBtn"
+);
+
+
+if(!select){
+
+alert(
+"Delivery boy selector not found."
+);
+
+return;
+
+}
+
+
+const boyId =
+select.value;
+
+
+if(!boyId){
+
+alert(
+"Please select a delivery boy."
+);
+
+return;
+
+}
+
+
+if(!orderId){
+
+alert(
+"Order ID missing."
+);
+
+return;
+
+}
+
+
+/* =====================================================
+   GET SELECTED BOY
+===================================================== */
+
+button.disabled = true;
+
+button.innerHTML = `
+
+<i class="fa-solid fa-spinner fa-spin"></i>
+
+Assigning...
+
+`;
+
+
+const {
+data:boy,
+error:boyError
+} = await sb
+.from("delivery_boys")
+.select(
+"id,user_id,name,phone,email,is_active"
+)
+.eq(
+"id",
+boyId
+)
+.maybeSingle();
+
+
+if(boyError){
+
+console.error(
+"SELECTED BOY ERROR:",
+boyError
+);
+
+alert(
+"Delivery boy load failed:\n\n" +
+boyError.message
+);
+
+resetAssignButton();
+
+return;
+
+}
+
+
+if(!boy){
+
+alert(
+"Selected delivery boy not found."
+);
+
+resetAssignButton();
+
+return;
+
+}
+
+
+if(
+boy.is_active !== true
+){
+
+alert(
+"This delivery boy is not active."
+);
+
+resetAssignButton();
+
+return;
+
+}
+
+
+/* =====================================================
+   ASSIGN ORDER
+===================================================== */
+
+const {
+data:updateData,
+error:updateError
+} = await sb
 .from("orders")
 .update({
-status: status
+
+delivery_boy_id:
+boy.id,
+
+delivery_boy_name:
+boy.name,
+
+delivery_boy_phone:
+boy.phone,
+
+assigned_at:
+new Date().toISOString(),
+
+delivery_status:
+"Assigned"
+
 })
-.eq("order_id", orderId)
+.eq(
+"order_id",
+orderId
+)
 .select();
 
-console.log("DATA:", data);
-console.log("ERROR:", error);
+
+if(updateError){
+
+console.error(
+"ASSIGNMENT ERROR:",
+updateError
+);
+
+alert(
+"Assignment failed:\n\n" +
+updateError.message
+);
+
+resetAssignButton();
+
+return;
+
+}
+
+
+if(
+!updateData ||
+updateData.length === 0
+){
+
+alert(
+"No order was updated.\n\nCheck orders RLS policy."
+);
+
+resetAssignButton();
+
+return;
+
+}
+
+
+/* =====================================================
+   SUCCESS
+===================================================== */
+
+toast(
+`${boy.name} assigned successfully`,
+"fa-user-check"
+);
+
+
+currentOrder = {
+...currentOrder,
+delivery_boy_id:boy.id,
+delivery_boy_name:boy.name,
+delivery_boy_phone:boy.phone,
+delivery_status:"Assigned"
+};
+
+
+setTimeout(
+()=>{
+loadOrder();
+},
+700
+);
+
+}
+
+
+/* =====================================================
+   RESET ASSIGN BUTTON
+===================================================== */
+
+function resetAssignButton(){
+
+const button =
+document.getElementById(
+"assignBtn"
+);
+
+if(!button) return;
+
+button.disabled = false;
+
+button.innerHTML = `
+
+<i class="fa-solid fa-user-check"></i>
+
+Assign Delivery Boy
+
+`;
+
+}
+
+
+/* =====================================================
+   PAYMENT SAVE
+===================================================== */
+
+async function savePayment(){
+
+const paymentType =
+document.getElementById(
+"paymentType"
+).value;
+
+
+const paidAmount =
+Number(
+document.getElementById(
+"paidAmount"
+).value
+) || 0;
+
+
+if(paidAmount < 0){
+
+alert(
+"Paid amount cannot be negative."
+);
+
+return;
+
+}
+
+
+const {
+data:current,
+error:getError
+} = await sb
+.from("orders")
+.select(
+"grand_total"
+)
+.eq(
+"order_id",
+orderId
+)
+.maybeSingle();
+
+
+if(getError){
+
+alert(
+getError.message
+);
+
+return;
+
+}
+
+
+if(!current){
+
+alert(
+"Order not found."
+);
+
+return;
+
+}
+
+
+const total =
+Number(
+current.grand_total
+) || 0;
+
+
+if(paidAmount > total){
+
+alert(
+"Paid amount cannot be greater than Grand Total."
+);
+
+return;
+
+}
+
+
+const {
+error
+} = await sb
+.from("orders")
+.update({
+
+payment_type:
+paymentType,
+
+paid_amount:
+paidAmount,
+
+payment_status:
+paidAmount >= total
+? "Paid"
+: "Partially Paid"
+
+})
+.eq(
+"order_id",
+orderId
+);
+
+
+if(error){
+
+alert(
+"Payment update failed:\n\n" +
+error.message
+);
+
+return;
+
+}
+
+
+toast(
+"Payment Saved",
+"fa-money-bill"
+);
+
+
+setTimeout(
+()=>{
+loadOrder();
+},
+500
+);
+
+}
+
+
+/* =====================================================
+   ADMIN ORDER STATUS
+===================================================== */
+
+async function updateStatus(status){
+
+const {
+data,
+error
+} = await sb
+.from("orders")
+.update({
+
+status:status
+
+})
+.eq(
+"order_id",
+orderId
+)
+.select();
+
 
 if(error){
 
 alert(
 "Supabase Error:\n\n" +
-JSON.stringify(error, null, 2)
-);
-
-toast("Update Failed", "fa-xmark");
-
-return;
-
-}
-
-if(!data || data.length === 0){
-
-alert(
-"No rows updated!\n\n" +
-"Possible reasons:\n" +
-"1. order_id not matching\n" +
-"2. RLS policy blocking update\n" +
-"3. Wrong table column"
+error.message
 );
 
 return;
 
 }
 
+
+if(
+!data ||
+data.length === 0
+){
+
 alert(
-"SUCCESS!\n\n" +
-"Status Updated To: " + status
+"No order was updated."
 );
 
-toast("Status Updated: " + status);
+return;
+
+}
+
+
+toast(
+"Status Updated: " + status,
+"fa-check"
+);
+
+
+setTimeout(
+()=>{
+loadOrder();
+},
+500
+);
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
 
 loadOrder();
 
-}
-
 </script>
+
+
 <script src="back.js"></script>
+
 </body>
+
 </html>
